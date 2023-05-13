@@ -1,95 +1,103 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client';
+
+import { Flex, Text, Box, SimpleGrid, Skeleton } from '@chakra-ui/react';
+import { useEffect, useState } from 'react';
+import { SafesTable } from './components/SafesTable';
+import { SYSTEMSTATE_QUERY } from './utils/queries';
+import { useQuery } from '@apollo/client';
+import { formatNumber } from './utils/helpers';
+import { BsFillArrowRightSquareFill } from 'react-icons/bs';
 
 export default function Home() {
+  const { loading, error, data } = useQuery(SYSTEMSTATE_QUERY);
+
+  const [raiDebt, setRaiDebt] = useState('');
+  const [safeCount, setSafeCount] = useState('');
+
+  useEffect(() => {
+    if (data) {
+      const globalDebt = data.systemStates[0].globalDebt;
+      const formattedDebt = formatNumber(globalDebt);
+      setRaiDebt(formattedDebt);
+      setSafeCount(data.systemStates[0].safeCount);
+    }
+  }, [data]);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+    <Box py='2rem' px='4rem'>
+      <Flex direction='column'>
+        <Flex mb='2rem'>
+          <Text fontSize='48px'>Reflexer Finance</Text>
+        </Flex>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+        <Flex direction='row' justifyContent='space-between' mb='4rem'>
+          <Flex direction='column'>
+            <Text fontSize='28px' mb='1rem'>
+              Explore Reflexer Safes
+            </Text>
+            <Text fontSize='14px' maxW='70%'>
+              Find current and historical information on collateralised debt
+              positions in the reflexer protocol
+            </Text>
+          </Flex>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+          {!loading ? (
+            <SimpleGrid columns='3' gap='5'>
+              <Flex
+                direction='column'
+                mr='2rem'
+                alignItems='left'
+                justifyContent='center'
+              >
+                <Text fontSize='24px' mb='.5rem'>
+                  {safeCount}
+                </Text>
+                <Text fontSize='14px' fontWeight='bold'>
+                  Safes
+                </Text>
+                <Text fontSize='14px' opacity='0.7'>
+                  Total
+                </Text>
+              </Flex>
+              <Flex
+                direction='column'
+                mr='2rem'
+                alignItems='left'
+                justifyContent='center'
+              >
+                <Text fontSize='24px' mb='.5rem'>
+                  {raiDebt}
+                </Text>
+                <Text fontSize='14px' fontWeight='bold'>
+                  RAI
+                </Text>
+                <Text fontSize='14px' opacity='0.7'>
+                  Debt
+                </Text>
+              </Flex>
+              <Flex
+                direction='column'
+                alignItems='left'
+                justifyContent='center'
+              >
+                <Text fontSize='24px' mb='1rem'>
+                  <BsFillArrowRightSquareFill />
+                </Text>
+                <Text fontSize='14px' fontWeight='bold'>
+                  Stats
+                </Text>
+                <Text fontSize='14px' opacity='0.7'>
+                  View More
+                </Text>
+              </Flex>
+            </SimpleGrid>
+          ) : (
+            <Skeleton w='30%' h='100px' />
+          )}
+        </Flex>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+        <SafesTable />
+      </Flex>
+    </Box>
+  );
 }
