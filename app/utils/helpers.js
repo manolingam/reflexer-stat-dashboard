@@ -31,6 +31,8 @@ export function calculateLTVRatio(
   // Calculate the LTV ratio
   const ltvRatio = (debtValue / collateralValue) * 100;
 
+  if (isNaN(ltvRatio)) return 0;
+
   // Return the LTV ratio rounded to two decimal places
   return parseFloat(ltvRatio.toFixed(2));
 }

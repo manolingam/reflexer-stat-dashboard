@@ -18,13 +18,19 @@ export const RAIPRICE_QUERY = gql`
 `;
 
 export const ALLSAFES_QUERY = gql`
-  query GetAllSafes($first: Int, $skip: Int) {
+  query GetAllSafes(
+    $first: Int
+    $skip: Int
+    $orderBy: String
+    $orderDirection: String
+  ) {
     safes(
       first: $first
       skip: $skip
-      orderBy: collateral
-      orderDirection: desc
+      orderBy: $orderBy
+      orderDirection: $orderDirection
     ) {
+      id
       safeId
       collateral
       debt
@@ -36,6 +42,18 @@ export const ALLSAFES_QUERY = gql`
       }
       saviour {
         allowed
+      }
+    }
+  }
+`;
+
+export const SAFE_ACTIVITY_QUERY = gql`
+  query GetSafeActivity($id: String) {
+    safe(id: $id) {
+      modifySAFECollateralization(orderBy: createdAt, orderDirection: desc) {
+        deltaDebt
+        deltaCollateral
+        createdAt
       }
     }
   }

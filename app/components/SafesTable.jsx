@@ -11,38 +11,56 @@ import {
   Td,
   TableContainer,
   Box,
-  Skeleton
+  Skeleton,
+  HStack
 } from '@chakra-ui/react';
+import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { ALLSAFES_QUERY, RAIPRICE_QUERY } from '../utils/queries';
 import { PageNumbers } from './PageNumbers';
 import { formatNumber, calculateLTVRatio } from '../utils/helpers';
-import { AiFillCheckCircle } from 'react-icons/ai';
-import { MdDisabledByDefault } from 'react-icons/md';
+import { FaEthereum } from 'react-icons/fa';
+import { FaAngleDown, FaAngleUp, FaArrowRight } from 'react-icons/fa';
 
 const RECORDS_PER_PAGE = 10;
 
 export const SafesTable = () => {
+  const router = useRouter();
   const [safes, setSafes] = useState([]);
   const [raiPrice, setRaiPrice] = useState(1);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
+  const [sortBy, setSortBy] = useState({
+    type: 'collateral',
+    direction: 'desc'
+  });
+
   const {
     data: safesData,
     fetchMore,
     loading
   } = useQuery(ALLSAFES_QUERY, {
-    variables: { first: 10, skip: currentPage * RECORDS_PER_PAGE }
+    variables: {
+      first: 10,
+      skip: currentPage * RECORDS_PER_PAGE,
+      orderBy: sortBy.type,
+      orderDirection: sortBy.direction
+    }
   });
 
   const { data: raiPriceData } = useQuery(RAIPRICE_QUERY);
 
   useEffect(() => {
     fetchMore({
-      variables: { first: 10, skip: currentPage * RECORDS_PER_PAGE }
+      variables: {
+        first: 10,
+        skip: currentPage * RECORDS_PER_PAGE,
+        orderBy: sortBy.type,
+        orderDirection: sortBy.direction
+      }
     });
   }, [currentPage]);
 
@@ -62,6 +80,21 @@ export const SafesTable = () => {
     }
   }, [raiPriceData]);
 
+  useEffect(() => {
+    fetchMore({
+      variables: { first: 10, skip: currentPage * RECORDS_PER_PAGE }
+    });
+  }, [sortBy]);
+
+  const updateSortBy = (type) => {
+    setSortBy((prevState) => ({
+      ...prevState,
+      type: type,
+      direction: prevState.direction === 'desc' ? 'asc' : 'desc'
+    }));
+    setCurrentPage(0);
+  };
+
   return (
     <Flex direction='column'>
       <Text fontSize='28px' mb='1rem'>
@@ -70,13 +103,70 @@ export const SafesTable = () => {
 
       <TableContainer>
         <Table variant='striped'>
-          <Thead>
+          <Thead bg='black'>
             <Tr fontSize='18px'>
-              <Th textAlign='left'>ID</Th>
-              <Th textAlign='right'>Debt</Th>
-              <Th textAlign='right'>Collateral</Th>
-              <Th textAlign='right'>Ratio</Th>
-              <Th textAlign='center'>Saviour Allowed</Th>
+              <Th textAlign='left' color='#e2e8f0'>
+                ID
+              </Th>
+              <Th
+                color='#e2e8f0'
+                textAlign='right'
+                onClick={() => updateSortBy('debt')}
+                cursor='pointer'
+                _hover={{
+                  opacity: 0.7
+                }}
+              >
+                <HStack justifyContent='flex-end'>
+                  <Text>Debt</Text>
+                  <Flex direction='column'>
+                    {sortBy.type === 'debt' ? (
+                      sortBy.direction === 'desc' ? (
+                        <FaAngleUp />
+                      ) : (
+                        <FaAngleDown />
+                      )
+                    ) : (
+                      <>
+                        <FaAngleUp /> <FaAngleDown />
+                      </>
+                    )}
+                  </Flex>
+                </HStack>
+              </Th>
+              <Th
+                color='#e2e8f0'
+                textAlign='right'
+                onClick={() => updateSortBy('collateral')}
+                cursor='pointer'
+                _hover={{
+                  opacity: 0.7
+                }}
+              >
+                <HStack justifyContent='flex-end'>
+                  <Text>Collateral</Text>
+                  <Flex direction='column'>
+                    {sortBy.type === 'collateral' ? (
+                      sortBy.direction === 'desc' ? (
+                        <FaAngleUp />
+                      ) : (
+                        <FaAngleDown />
+                      )
+                    ) : (
+                      <>
+                        <FaAngleUp /> <FaAngleDown />
+                      </>
+                    )}
+                  </Flex>
+                </HStack>
+              </Th>
+              <Th textAlign='right' color='#e2e8f0'>
+                Ratio
+              </Th>
+              <Th textAlign='center' color='#e2e8f0'>
+                Saviour Allowed
+              </Th>
+              <Th></Th>
             </Tr>
           </Thead>
 
@@ -85,8 +175,18 @@ export const SafesTable = () => {
               {safes.length > 0 &&
                 safes.map((records, index) => {
                   return (
-                    <Tr key={index} fontSize='14px'>
-                      <Td>{records.safeId}</Td>
+                    <Tr
+                      key={index}
+                      fontSize='14px'
+                      cursor='pointer'
+                      _hover={{ opacity: 0.7 }}
+                      onClick={() => router.push(`/safe/${records.id}`)}
+                    >
+                      <Td>
+                        <HStack>
+                          <FaEthereum /> <Text>{records.safeId}</Text>
+                        </HStack>
+                      </Td>
                       <Td textAlign='right'>
                         {formatNumber(records.debt)} RAI
                       </Td>
@@ -105,11 +205,13 @@ export const SafesTable = () => {
                       <Td textAlign='center'>
                         <Text>
                           {records.saviour && records.saviour.allowed
-                            ? // <AiFillCheckCircle />
-                              'Allowed'
-                            : // <MdDisabledByDefault />
-                              'Not Allowed'}
+                            ? 'Allowed'
+                            : 'Not Allowed'}
                         </Text>
+                      </Td>
+
+                      <Td textAlign='center'>
+                        <FaArrowRight />
                       </Td>
                     </Tr>
                   );
@@ -120,30 +222,35 @@ export const SafesTable = () => {
           {loading && (
             <Tbody>
               {Array.from(Array(10).keys()).map((index) => (
-                <Tr key={index} fontSize='14px'>
+                <Tr key={index} fontSize='18px'>
                   <Td>
                     <Box width='100%'>
-                      <Skeleton height='16px' py='.5rem' />
+                      <Skeleton height='20px' py='.5rem' />
                     </Box>
                   </Td>
                   <Td textAlign='right'>
                     <Box width='100%'>
-                      <Skeleton height='16px' />
+                      <Skeleton height='20px' py='.5rem' />
                     </Box>
                   </Td>
                   <Td textAlign='right'>
                     <Box width='100%'>
-                      <Skeleton height='16px' />
+                      <Skeleton height='20px' py='.5rem' />
                     </Box>
                   </Td>
                   <Td textAlign='right'>
                     <Box width='100%'>
-                      <Skeleton height='16px' />
+                      <Skeleton height='20px' py='.5rem' />
                     </Box>
                   </Td>
                   <Td textAlign='center'>
                     <Box width='100%'>
-                      <Skeleton height='16px' />
+                      <Skeleton height='20px' py='.5rem' />
+                    </Box>
+                  </Td>
+                  <Td textAlign='center'>
+                    <Box width='100%'>
+                      <Skeleton height='18px' py='.5rem' />
                     </Box>
                   </Td>
                 </Tr>
