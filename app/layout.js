@@ -1,6 +1,7 @@
 'use client';
 
 import './globals.css';
+import './nprogress.css';
 import { Poppins } from 'next/font/google';
 import { Providers } from './providers';
 import { client } from './utils/graph';
@@ -8,8 +9,14 @@ import { ApolloProvider } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
+import Router from 'next/router';
+import nProgress from 'nprogress';
 
 const poppins = Poppins({ subsets: ['latin'], weight: '500' });
+
+Router.events.on('routeChangeStart', () => nProgress.start());
+Router.events.on('routeChangeComplete', () => nProgress.done());
+Router.events.on('routeChangeError', () => nProgress.done());
 
 export const metadata = {
   title: 'Create Next App',

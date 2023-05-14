@@ -74,12 +74,7 @@ export const SafeTable = ({ safeId }) => {
               {activity.length > 0 &&
                 activity.map((records, index) => {
                   return (
-                    <Tr
-                      key={index}
-                      fontSize='14px'
-                      cursor='pointer'
-                      _hover={{ opacity: 0.7 }}
-                    >
+                    <Tr key={index} fontSize='14px'>
                       <Td>#name</Td>
                       <Td textAlign='right'>
                         {formatNumber(records.deltaCollateral)} ETH

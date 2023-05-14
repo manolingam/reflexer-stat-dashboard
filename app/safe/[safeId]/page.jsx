@@ -13,63 +13,128 @@ import {
   HStack
 } from '@chakra-ui/react';
 import { FaEthereum } from 'react-icons/fa';
+import { SAFE_QUERY, RAIPRICE_QUERY } from '@/app/utils/queries';
+import { useQuery } from '@apollo/client';
+import {
+  getAccountString,
+  formatNumber,
+  calculateLTVRatio
+} from '@/app/utils/helpers';
+import { useState, useEffect } from 'react';
 
 export default function SafePage({ params }) {
-  console.log(params);
+  const { data: safeData } = useQuery(SAFE_QUERY, {
+    variables: { id: params.safeId }
+  });
+
+  const { data: raiPriceData } = useQuery(RAIPRICE_QUERY);
+
+  const [raiPrice, setRaiPrice] = useState(1);
+  const [safe, setSafe] = useState(null);
+
+  useEffect(() => {
+    if (raiPriceData) {
+      setRaiPrice(raiPriceData.dailyStats[0].marketPriceUsd);
+    }
+  }, [raiPriceData]);
+
+  useEffect(() => {
+    if (safeData) {
+      setSafe(safeData.safe);
+    }
+  }, [safeData]);
+
   return (
     <Flex direction='column'>
       <Flex direction='column' mb='2rem' p='1rem'>
         <HStack fontSize='36px' mb='10px'>
-          <FaEthereum /> <Text>2334</Text>
+          {!safe ? (
+            <Skeleton w='200px' h='16px' />
+          ) : (
+            <Text># {safe.safeId}</Text>
+          )}
         </HStack>
 
-        <Tag w='200px'>Owned by 0xr...g4e5</Tag>
+        {!safe ? (
+          <Skeleton w='200px' h='16px' />
+        ) : (
+          <HStack>
+            <Text fontSize='12px'>Owned by</Text>
+            <Tag w='auto'>{getAccountString(safe.owner.address)}</Tag>{' '}
+          </HStack>
+        )}
       </Flex>
-      <Flex direction='row' p='1rem'>
+
+      <Flex direction='row' p='1rem' mb='3rem'>
         <Flex direction='column'>
           <SimpleGrid columns='3' gap='10' mb='2rem'>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Collateral</Text>
-              <Text fontSize='24px'>
-                <Highlight
-                  query='ETH'
-                  styles={{
-                    fontSize: '14px',
-                    opacity: 0.7
-                  }}
-                >
-                  91,632 ETH
-                </Highlight>
-              </Text>
+              {!safe ? (
+                <Skeleton w='100px' h='30px' />
+              ) : (
+                <HStack alignItems='baseline'>
+                  <Text fontSize='24px'>{formatNumber(safe.collateral)}</Text>
+                  <Text fontSize='14px' opacity='0.7'>
+                    ETH
+                  </Text>
+                </HStack>
+              )}
             </VStack>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Debt</Text>
-              <Text fontSize='24px'>
-                <Highlight
-                  query='DAI'
-                  styles={{
-                    fontSize: '14px',
-                    opacity: 0.7
-                  }}
-                >
-                  57.2M DAI
-                </Highlight>
-              </Text>
+              {!safe ? (
+                <Skeleton w='100px' h='30px' />
+              ) : (
+                <HStack alignItems='baseline'>
+                  <Text fontSize='24px'>{formatNumber(safe.debt)}</Text>
+                  <Text fontSize='14px' opacity='0.7'>
+                    DAI
+                  </Text>
+                </HStack>
+              )}
             </VStack>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Ratio</Text>
-              <Text fontSize='24px'>342.51%</Text>
+              {!safe ? (
+                <Skeleton w='100px' h='30px' />
+              ) : (
+                <Text fontSize='24px'>
+                  {calculateLTVRatio(
+                    safe.collateral,
+                    safe.collateralType.currentPrice.value,
+                    safe.debt,
+                    raiPrice
+                  )}
+                  %
+                </Text>
+              )}
             </VStack>
           </SimpleGrid>
 
           <SimpleGrid columns='2' gap='5'>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Current Price</Text>
-              <Text fontSize='18px'>$2,139.57</Text>
+              {!safe ? (
+                <Skeleton w='70px' h='10px' />
+              ) : (
+                <Text fontSize='18px'>
+                  $ {formatNumber(safe.collateralType.currentPrice.value)}
+                </Text>
+              )}
             </VStack>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Liquidation Price</Text>
-              <Text fontSize='18px'>$1,155.63</Text>
+              {!safe ? (
+                <Skeleton w='70px' h='10px' />
+              ) : (
+                <Text fontSize='18px'>
+                  ${' '}
+                  {formatNumber(
+                    safe.collateralType.currentPrice.liquidationPrice
+                  )}
+                </Text>
+              )}
             </VStack>
           </SimpleGrid>
         </Flex>

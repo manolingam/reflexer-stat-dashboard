@@ -47,6 +47,25 @@ export const ALLSAFES_QUERY = gql`
   }
 `;
 
+export const SAFE_QUERY = gql`
+  query GetSafe($id: String) {
+    safe(id: $id) {
+      safeId
+      collateral
+      debt
+      owner {
+        address
+      }
+      collateralType {
+        currentPrice {
+          value
+          liquidationPrice
+        }
+      }
+    }
+  }
+`;
+
 export const SAFE_ACTIVITY_QUERY = gql`
   query GetSafeActivity($id: String) {
     safe(id: $id) {
