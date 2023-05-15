@@ -5,6 +5,7 @@ export const SYSTEMSTATE_QUERY = gql`
     systemStates {
       safeCount
       globalDebt
+      totalActiveSafeCount
     }
   }
 `;

@@ -19,7 +19,11 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
 import { ALLSAFES_QUERY, RAIPRICE_QUERY } from '../utils/queries';
 import { PageNumbers } from './PageNumbers';
-import { formatNumber, calculateLTVRatio } from '../utils/helpers';
+import {
+  formatNumber,
+  calculateLTVRatio,
+  getAccountString
+} from '../utils/helpers';
 import { FaEthereum } from 'react-icons/fa';
 import { FaAngleDown, FaAngleUp, FaArrowRight } from 'react-icons/fa';
 
@@ -184,7 +188,8 @@ export const SafesTable = () => {
                     >
                       <Td>
                         <HStack>
-                          <FaEthereum /> <Text>{records.safeId}</Text>
+                          <FaEthereum />{' '}
+                          <Text>{getAccountString(records.id)}</Text>
                         </HStack>
                       </Td>
                       <Td textAlign='right'>
