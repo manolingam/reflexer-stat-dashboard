@@ -6,15 +6,15 @@ import {
   Text,
   SimpleGrid,
   Skeleton,
-  Image as ChakraImage,
   VStack,
-  Highlight,
+  Button,
   Tag,
   HStack
 } from '@chakra-ui/react';
-import { FaEthereum } from 'react-icons/fa';
+import { GrPrevious } from 'react-icons/gr';
 import { SAFE_QUERY, RAIPRICE_QUERY } from '@/app/utils/queries';
 import { useQuery } from '@apollo/client';
+import { useRouter } from 'next/navigation';
 import {
   getAccountString,
   formatNumber,
@@ -32,6 +32,8 @@ export default function SafePage({ params }) {
   const [raiPrice, setRaiPrice] = useState(1);
   const [safe, setSafe] = useState(null);
 
+  const router = useRouter();
+
   useEffect(() => {
     if (raiPriceData) {
       setRaiPrice(raiPriceData.dailyStats[0].marketPriceUsd);
@@ -48,13 +50,15 @@ export default function SafePage({ params }) {
     <Flex direction='column'>
       <Flex direction='column' mb='2rem' p='1rem'>
         <HStack fontSize='36px' mb='10px'>
+          <Button onClick={() => router.back()}>
+            <GrPrevious />
+          </Button>
           {!safe ? (
             <Skeleton w='200px' h='16px' />
           ) : (
             <Text># {safe.safeId}</Text>
           )}
         </HStack>
-
         {!safe ? (
           <Skeleton w='200px' h='16px' />
         ) : (

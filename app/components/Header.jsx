@@ -21,7 +21,13 @@ export const Header = () => {
       justifyContent='space-between'
       mb='2rem'
     >
-      <ChakraImage src='/brand-color.webp' alt='Reflexer Finance' w='200px' />
+      <ChakraImage
+        src='/brand-color.webp'
+        alt='Reflexer Finance'
+        w='200px'
+        cursor='pointer'
+        onClick={() => router.push('/')}
+      />
       <HStack>
         <Input
           onChange={(e) => setSafeId(e.target.value)}

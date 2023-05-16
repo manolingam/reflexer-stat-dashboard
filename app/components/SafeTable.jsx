@@ -75,7 +75,11 @@ export const SafeTable = ({ safeId }) => {
                 activity.map((records, index) => {
                   return (
                     <Tr key={index} fontSize='14px'>
-                      <Td>#name</Td>
+                      <Td>
+                        {Math.sign(records.deltaDebt) == 1
+                          ? 'Mint RAI'
+                          : 'Burn RAI'}
+                      </Td>
                       <Td textAlign='right'>
                         {formatNumber(records.deltaCollateral)} ETH
                       </Td>
