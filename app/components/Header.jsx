@@ -16,7 +16,7 @@ export const Header = () => {
 
   return (
     <Flex
-      direction='row'
+      direction={{ lg: 'row', sm: 'column' }}
       alignItems='center'
       justifyContent='space-between'
       mb='2rem'
@@ -24,11 +24,11 @@ export const Header = () => {
       <ChakraImage
         src='/brand-color.webp'
         alt='Reflexer Finance'
-        w='200px'
+        w={{ lg: '200px', sm: '100px' }}
         cursor='pointer'
         onClick={() => router.push('/')}
       />
-      <HStack>
+      <HStack mt={{ lg: 0, sm: '2rem' }}>
         <Input
           onChange={(e) => setSafeId(e.target.value)}
           placeholder='safe id'

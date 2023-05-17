@@ -22,9 +22,13 @@ export default function Home() {
 
   return (
     <Flex direction='column'>
-      <Flex direction='row' justifyContent='space-between' mb='4rem'>
-        <Flex direction='column'>
-          <Text fontSize='28px' mb='1rem'>
+      <Flex
+        direction={{ lg: 'row', sm: 'column' }}
+        justifyContent='space-between'
+        mb='4rem'
+      >
+        <Flex direction='column' mb={{ lg: 0, sm: '2rem' }}>
+          <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem'>
             Explore Reflexer Safes
           </Text>
           <Text fontSize='14px' maxW='400px'>
@@ -37,44 +41,44 @@ export default function Home() {
           <SimpleGrid columns='3' gap='5'>
             <Flex
               direction='column'
-              mr='2rem'
+              mr={{ lg: '2rem', sm: 0 }}
               alignItems='left'
               justifyContent='center'
             >
-              <Text fontSize='24px' mb='.5rem'>
+              <Text fontSize={{ lg: '24px', sm: '18px' }} mb='.5rem'>
                 {data.systemStates[0].safeCount}
               </Text>
-              <Text fontSize='14px' fontWeight='bold'>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Safes
               </Text>
-              <Text fontSize='14px' opacity='0.7'>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Total
               </Text>
             </Flex>
             <Flex direction='column' alignItems='left' justifyContent='center'>
-              <Text fontSize='24px' mb='.5rem'>
+              <Text fontSize={{ lg: '24px', sm: '18px' }} mb='.5rem'>
                 {data.systemStates[0].totalActiveSafeCount}
               </Text>
-              <Text fontSize='14px' fontWeight='bold'>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Active Safes
               </Text>
-              <Text fontSize='14px' opacity='0.7'>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Total
               </Text>
             </Flex>
             <Flex
               direction='column'
-              mr='2rem'
+              mr={{ lg: '2rem', sm: 0 }}
               alignItems='left'
               justifyContent='center'
             >
-              <Text fontSize='24px' mb='.5rem'>
+              <Text fontSize={{ lg: '24px', sm: '18px' }} mb='.5rem'>
                 {raiDebt}
               </Text>
-              <Text fontSize='14px' fontWeight='bold'>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 RAI
               </Text>
-              <Text fontSize='14px' opacity='0.7'>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Debt
               </Text>
             </Flex>

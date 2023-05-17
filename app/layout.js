@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
       <body className={poppins.className}>
         <ApolloProvider client={client}>
           <Providers>
-            <Box py='2rem' px='4rem'>
+            <Box py='2rem' px={{ lg: '4rem', sm: '2rem' }}>
               <Header />
               {children}
             </Box>

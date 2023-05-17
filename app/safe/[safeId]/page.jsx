@@ -49,8 +49,8 @@ export default function SafePage({ params }) {
   return (
     <Flex direction='column'>
       <Flex direction='column' mb='2rem' p='1rem'>
-        <HStack fontSize='36px' mb='10px'>
-          <Button onClick={() => router.back()}>
+        <HStack fontSize={{ lg: '36px', sm: '24px' }} mb='10px'>
+          <Button onClick={() => router.back()} mr='1rem'>
             <GrPrevious />
           </Button>
           {!safe ? (
@@ -71,15 +71,17 @@ export default function SafePage({ params }) {
 
       <Flex direction='row' p='1rem' mb='3rem'>
         <Flex direction='column'>
-          <SimpleGrid columns='3' gap='10' mb='2rem'>
+          <SimpleGrid columns={{ lg: 3, sm: 2 }} gap='10' mb='2rem'>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Collateral</Text>
               {!safe ? (
                 <Skeleton w='100px' h='30px' />
               ) : (
                 <HStack alignItems='baseline'>
-                  <Text fontSize='24px'>{formatNumber(safe.collateral)}</Text>
-                  <Text fontSize='14px' opacity='0.7'>
+                  <Text fontSize={{ lg: '24px', sm: '18px' }}>
+                    {formatNumber(safe.collateral)}
+                  </Text>
+                  <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                     ETH
                   </Text>
                 </HStack>
@@ -91,8 +93,10 @@ export default function SafePage({ params }) {
                 <Skeleton w='100px' h='30px' />
               ) : (
                 <HStack alignItems='baseline'>
-                  <Text fontSize='24px'>{formatNumber(safe.debt)}</Text>
-                  <Text fontSize='14px' opacity='0.7'>
+                  <Text fontSize={{ lg: '24px', sm: '18px' }}>
+                    {formatNumber(safe.debt)}
+                  </Text>
+                  <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                     DAI
                   </Text>
                 </HStack>
@@ -103,7 +107,7 @@ export default function SafePage({ params }) {
               {!safe ? (
                 <Skeleton w='100px' h='30px' />
               ) : (
-                <Text fontSize='24px'>
+                <Text fontSize={{ lg: '24px', sm: '18px' }}>
                   {calculateLTVRatio(
                     safe.collateral,
                     safe.collateralType.currentPrice.value,
