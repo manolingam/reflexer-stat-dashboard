@@ -35,6 +35,9 @@ export const ALLSAFES_QUERY = gql`
       safeId
       collateral
       debt
+      owner {
+        address
+      }
       collateralType {
         currentPrice {
           value
@@ -50,7 +53,8 @@ export const ALLSAFES_QUERY = gql`
 
 export const SAFE_QUERY = gql`
   query GetSafe($id: String) {
-    safe(id: $id) {
+    safes(where: { safeId: $id }) {
+      id
       safeId
       collateral
       debt

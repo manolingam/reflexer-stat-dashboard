@@ -43,3 +43,27 @@ export const getAccountString = (account) => {
     .substr(len - 3, len - 1)
     .toUpperCase()}`;
 };
+
+export function collateralRatio(
+  totalCollateral,
+  collateralPrice,
+  totalDebt,
+  debtPrice
+) {
+  // Calculate the value of collateral
+  const collateralValue = totalCollateral * collateralPrice;
+
+  // Calculate the value of debt
+  const debtValue = totalDebt * debtPrice;
+
+  // Calculate the LTV ratio
+  const ltvRatio = (debtValue / collateralValue) * 100;
+
+  if (isNaN(ltvRatio)) return 0;
+
+  // Calculate the reciprocal of the LTV ratio
+  const reciprocal = 1 / (ltvRatio / 100);
+
+  // Return the reciprocal of the LTV ratio rounded to two decimal places
+  return parseFloat(reciprocal.toFixed(2));
+}

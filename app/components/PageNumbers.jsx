@@ -18,6 +18,10 @@ export const PageNumbers = ({ currentPage, setCurrentPage, totalPages }) => {
         fontSize='10px'
         padding='10px'
         height='auto'
+        background='#3ac1b9'
+        color='black'
+        fontWeight='light'
+        _hover={{ opacity: 0.7 }}
       >
         <GrPrevious />
       </Button>
@@ -32,6 +36,10 @@ export const PageNumbers = ({ currentPage, setCurrentPage, totalPages }) => {
         fontSize='10px'
         padding='10px'
         height='auto'
+        background='#3ac1b9'
+        color='black'
+        fontWeight='light'
+        _hover={{ opacity: 0.7 }}
       >
         <GrNext />
       </Button>

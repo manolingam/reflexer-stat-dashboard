@@ -45,7 +45,13 @@ export default function Home() {
               alignItems='left'
               justifyContent='center'
             >
-              <Text fontSize={{ lg: '24px', sm: '18px' }} mb='.5rem'>
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
                 {data.systemStates[0].safeCount}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
@@ -56,7 +62,13 @@ export default function Home() {
               </Text>
             </Flex>
             <Flex direction='column' alignItems='left' justifyContent='center'>
-              <Text fontSize={{ lg: '24px', sm: '18px' }} mb='.5rem'>
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
                 {data.systemStates[0].totalActiveSafeCount}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
@@ -72,7 +84,13 @@ export default function Home() {
               alignItems='left'
               justifyContent='center'
             >
-              <Text fontSize={{ lg: '24px', sm: '18px' }} mb='.5rem'>
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
                 {raiDebt}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>

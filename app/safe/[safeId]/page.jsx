@@ -18,12 +18,13 @@ import { useRouter } from 'next/navigation';
 import {
   getAccountString,
   formatNumber,
-  calculateLTVRatio
+  calculateLTVRatio,
+  collateralRatio
 } from '@/app/utils/helpers';
 import { useState, useEffect } from 'react';
 
 export default function SafePage({ params }) {
-  const { data: safeData } = useQuery(SAFE_QUERY, {
+  const { data: safeData, error } = useQuery(SAFE_QUERY, {
     variables: { id: params.safeId }
   });
 
@@ -42,7 +43,7 @@ export default function SafePage({ params }) {
 
   useEffect(() => {
     if (safeData) {
-      setSafe(safeData.safe);
+      setSafe(safeData.safes[0]);
     }
   }, [safeData]);
 
@@ -50,13 +51,26 @@ export default function SafePage({ params }) {
     <Flex direction='column'>
       <Flex direction='column' mb='2rem' p='1rem'>
         <HStack fontSize={{ lg: '36px', sm: '24px' }} mb='10px'>
-          <Button onClick={() => router.back()} mr='1rem'>
+          <Button
+            background='#3ac1b9'
+            color='black'
+            fontWeight='light'
+            _hover={{ opacity: 0.7 }}
+            onClick={() => router.back()}
+            mr='1rem'
+          >
             <GrPrevious />
           </Button>
           {!safe ? (
             <Skeleton w='200px' h='16px' />
           ) : (
-            <Text># {safe.safeId}</Text>
+            <Text
+              background='linear-gradient(to right, #41c1d0, #1a6c51)'
+              backgroundClip='text'
+              fontWeight='extrabold'
+            >
+              # {safe.safeId}
+            </Text>
           )}
         </HStack>
         {!safe ? (
@@ -71,14 +85,19 @@ export default function SafePage({ params }) {
 
       <Flex direction='row' p='1rem' mb='3rem'>
         <Flex direction='column'>
-          <SimpleGrid columns={{ lg: 3, sm: 2 }} gap='10' mb='2rem'>
+          <SimpleGrid columns={{ lg: 4, sm: 2 }} gap='10' mb='2rem'>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Collateral</Text>
               {!safe ? (
                 <Skeleton w='100px' h='30px' />
               ) : (
                 <HStack alignItems='baseline'>
-                  <Text fontSize={{ lg: '24px', sm: '18px' }}>
+                  <Text
+                    background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                    backgroundClip='text'
+                    fontWeight='extrabold'
+                    fontSize={{ lg: '32px', sm: '18px' }}
+                  >
                     {formatNumber(safe.collateral)}
                   </Text>
                   <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
@@ -93,22 +112,53 @@ export default function SafePage({ params }) {
                 <Skeleton w='100px' h='30px' />
               ) : (
                 <HStack alignItems='baseline'>
-                  <Text fontSize={{ lg: '24px', sm: '18px' }}>
+                  <Text
+                    background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                    backgroundClip='text'
+                    fontWeight='extrabold'
+                    fontSize={{ lg: '32px', sm: '18px' }}
+                  >
                     {formatNumber(safe.debt)}
                   </Text>
                   <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                    DAI
+                    RAI
                   </Text>
                 </HStack>
               )}
             </VStack>
             <VStack alignItems='flex-start'>
-              <Text opacity='0.7'>Ratio</Text>
+              <Text opacity='0.7'> LTV Ratio</Text>
               {!safe ? (
                 <Skeleton w='100px' h='30px' />
               ) : (
-                <Text fontSize={{ lg: '24px', sm: '18px' }}>
+                <Text
+                  fontSize={{ lg: '32px', sm: '18px' }}
+                  background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                  backgroundClip='text'
+                  fontWeight='extrabold'
+                >
                   {calculateLTVRatio(
+                    safe.collateral,
+                    safe.collateralType.currentPrice.value,
+                    safe.debt,
+                    raiPrice
+                  )}
+                  %
+                </Text>
+              )}
+            </VStack>
+            <VStack alignItems='flex-start'>
+              <Text opacity='0.7'> Collateral Ratio</Text>
+              {!safe ? (
+                <Skeleton w='100px' h='30px' />
+              ) : (
+                <Text
+                  fontSize={{ lg: '32px', sm: '18px' }}
+                  background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                  backgroundClip='text'
+                  fontWeight='extrabold'
+                >
+                  {collateralRatio(
                     safe.collateral,
                     safe.collateralType.currentPrice.value,
                     safe.debt,
@@ -120,8 +170,8 @@ export default function SafePage({ params }) {
             </VStack>
           </SimpleGrid>
 
-          <SimpleGrid columns='2' gap='5'>
-            <VStack alignItems='flex-start'>
+          <Flex direction='row'>
+            <VStack alignItems='flex-start' mr='2rem'>
               <Text opacity='0.7'>Current Price</Text>
               {!safe ? (
                 <Skeleton w='70px' h='10px' />
@@ -144,11 +194,11 @@ export default function SafePage({ params }) {
                 </Text>
               )}
             </VStack>
-          </SimpleGrid>
+          </Flex>
         </Flex>
       </Flex>
 
-      <SafeTable safeId={params.safeId} />
+      {safe && <SafeTable safeId={safe.id} />}
     </Flex>
   );
 }

@@ -22,6 +22,7 @@ import { PageNumbers } from './PageNumbers';
 import {
   formatNumber,
   calculateLTVRatio,
+  collateralRatio,
   getAccountString
 } from '../utils/helpers';
 import { FaEthereum } from 'react-icons/fa';
@@ -106,14 +107,16 @@ export const SafesTable = () => {
       </Text>
 
       <TableContainer>
-        <Table variant='striped'>
-          <Thead bg='black'>
+        <Table variant='unstyled'>
+          <Thead bg='#3ac1b9'>
             <Tr fontSize='18px'>
-              <Th textAlign='left' color='#e2e8f0'>
-                ID
+              <Th textAlign='left' color='black'>
+                Safe ID
+              </Th>
+              <Th textAlign='left' color='black'>
+                Owner
               </Th>
               <Th
-                color='#e2e8f0'
                 textAlign='right'
                 onClick={() => updateSortBy('debt')}
                 cursor='pointer'
@@ -121,7 +124,7 @@ export const SafesTable = () => {
                   opacity: 0.7
                 }}
               >
-                <HStack justifyContent='flex-end'>
+                <HStack justifyContent='flex-end' color='black'>
                   <Text>Debt</Text>
                   <Flex direction='column'>
                     {sortBy.type === 'debt' ? (
@@ -139,7 +142,6 @@ export const SafesTable = () => {
                 </HStack>
               </Th>
               <Th
-                color='#e2e8f0'
                 textAlign='right'
                 onClick={() => updateSortBy('collateral')}
                 cursor='pointer'
@@ -147,7 +149,7 @@ export const SafesTable = () => {
                   opacity: 0.7
                 }}
               >
-                <HStack justifyContent='flex-end'>
+                <HStack justifyContent='flex-end' color='black'>
                   <Text>Collateral</Text>
                   <Flex direction='column'>
                     {sortBy.type === 'collateral' ? (
@@ -164,11 +166,11 @@ export const SafesTable = () => {
                   </Flex>
                 </HStack>
               </Th>
-              <Th textAlign='right' color='#e2e8f0'>
-                Ratio
+              <Th textAlign='right' color='black' maxW='50px'>
+                CR
               </Th>
-              <Th textAlign='center' color='#e2e8f0'>
-                Saviour Allowed
+              <Th textAlign='center' color='black'>
+                Saviour Enabled
               </Th>
               <Th></Th>
             </Tr>
@@ -184,12 +186,17 @@ export const SafesTable = () => {
                       fontSize='14px'
                       cursor='pointer'
                       _hover={{ opacity: 0.7 }}
-                      onClick={() => router.push(`/safe/${records.id}`)}
+                      onClick={() => router.push(`/safe/${records.safeId}`)}
                     >
                       <Td>
                         <HStack>
+                          <FaEthereum /> <Text>{records.safeId}</Text>
+                        </HStack>
+                      </Td>
+                      <Td>
+                        <HStack>
                           <FaEthereum />{' '}
-                          <Text>{getAccountString(records.id)}</Text>
+                          <Text>{getAccountString(records.owner.address)}</Text>
                         </HStack>
                       </Td>
                       <Td textAlign='right'>
@@ -199,7 +206,7 @@ export const SafesTable = () => {
                         {formatNumber(records.collateral)} ETH
                       </Td>
                       <Td textAlign='right'>
-                        {calculateLTVRatio(
+                        {collateralRatio(
                           records.collateral,
                           records.collateralType.currentPrice.value,
                           records.debt,
@@ -210,8 +217,8 @@ export const SafesTable = () => {
                       <Td textAlign='center'>
                         <Text>
                           {records.saviour && records.saviour.allowed
-                            ? 'Allowed'
-                            : 'Not Allowed'}
+                            ? 'Enabled'
+                            : 'Disabled'}
                         </Text>
                       </Td>
 

@@ -5,7 +5,7 @@ import { Poppins } from 'next/font/google';
 import { Providers } from './providers';
 import { client } from './utils/graph';
 import { ApolloProvider } from '@apollo/client';
-import { Box } from '@chakra-ui/react';
+import { Flex } from '@chakra-ui/react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 
@@ -17,11 +17,21 @@ export default function RootLayout({ children }) {
       <body className={poppins.className}>
         <ApolloProvider client={client}>
           <Providers>
-            <Box py='2rem' px={{ lg: '4rem', sm: '2rem' }}>
+            <Flex
+              direction='column'
+              justifyContent='space-between'
+              maxW='80rem'
+              minH='100vh'
+              mx='auto'
+              pt='2rem'
+              px={{ lg: '4rem', sm: '2rem' }}
+              bg='black'
+              color='white'
+            >
               <Header />
               {children}
-            </Box>
-            <Footer />
+              <Footer />
+            </Flex>
           </Providers>
         </ApolloProvider>
       </body>

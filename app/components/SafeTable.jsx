@@ -51,19 +51,19 @@ export const SafeTable = ({ safeId }) => {
   return (
     <Flex direction='column'>
       <TableContainer>
-        <Table variant='striped'>
-          <Thead bg='black'>
+        <Table variant='unstyled'>
+          <Thead bg='#3ac1b9'>
             <Tr fontSize='18px'>
-              <Th textAlign='left' color='#e2e8f0'>
+              <Th textAlign='left' color='black'>
                 Activity
               </Th>
-              <Th textAlign='right' color='#e2e8f0'>
+              <Th textAlign='right' color='black'>
                 Collateral Change
               </Th>
-              <Th textAlign='right' color='#e2e8f0'>
+              <Th textAlign='right' color='black'>
                 Debt Change
               </Th>
-              <Th textAlign='right' color='#e2e8f0'>
+              <Th textAlign='right' color='black'>
                 Timestamp
               </Th>
             </Tr>

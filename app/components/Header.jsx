@@ -22,7 +22,7 @@ export const Header = () => {
       mb='2rem'
     >
       <ChakraImage
-        src='/brand-color.webp'
+        src='/brand-white.png'
         alt='Reflexer Finance'
         w={{ lg: '200px', sm: '100px' }}
         cursor='pointer'
@@ -33,7 +33,15 @@ export const Header = () => {
           onChange={(e) => setSafeId(e.target.value)}
           placeholder='safe id'
         />
-        <Button onClick={() => router.push(`/safe/${safeId}`)}>Search</Button>
+        <Button
+          background='#3ac1b9'
+          color='black'
+          fontWeight='light'
+          _hover={{ opacity: 0.7 }}
+          onClick={() => router.push(`/safe/${safeId}`)}
+        >
+          Search
+        </Button>
       </HStack>
     </Flex>
   );
