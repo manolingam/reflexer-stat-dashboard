@@ -190,21 +190,20 @@ export const SafesTable = () => {
                       onClick={() => router.push(`/safe/${records.safeId}`)}
                     >
                       <Td>
-                        <HStack>
-                          <FaEthereum /> <Text>{records.safeId}</Text>
-                        </HStack>
+                        <Text>{records.safeId}</Text>
                       </Td>
                       <Td>
-                        <HStack>
-                          <FaEthereum />{' '}
-                          <Text>{getAccountString(records.owner.address)}</Text>
-                        </HStack>
+                        <Text>{getAccountString(records.owner.address)}</Text>
                       </Td>
                       <Td textAlign='right'>
                         {formatNumber(records.debt)} RAI
                       </Td>
+
                       <Td textAlign='right'>
-                        {formatNumber(records.collateral)} ETH
+                        <HStack justifyContent='flex-end'>
+                          <FaEthereum />{' '}
+                          <Text>{formatNumber(records.collateral)} ETH</Text>
+                        </HStack>
                       </Td>
                       <Td textAlign='center'>
                         {collateralRatio(

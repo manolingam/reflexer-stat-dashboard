@@ -81,7 +81,13 @@ export const SafeTable = ({ safeId }) => {
                           : 'Burn RAI'}
                       </Td>
                       <Td textAlign='right'>
-                        {formatNumber(records.deltaCollateral)} ETH
+                        <HStack justifyContent='flex-end'>
+                          {' '}
+                          <FaEthereum />{' '}
+                          <Text>
+                            {formatNumber(records.deltaCollateral)} ETH
+                          </Text>
+                        </HStack>
                       </Td>
                       <Td textAlign='right'>
                         {formatNumber(records.deltaDebt)} RAI
