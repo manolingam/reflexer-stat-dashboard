@@ -65,5 +65,5 @@ export function collateralRatio(
   const reciprocal = 1 / (ltvRatio / 100);
 
   // Return the reciprocal of the LTV ratio rounded to two decimal places
-  return parseFloat(reciprocal.toFixed(2));
+  return parseFloat(reciprocal.toFixed(2)) * 100;
 }

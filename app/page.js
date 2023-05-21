@@ -5,18 +5,29 @@ import { useEffect, useState } from 'react';
 import { SafesTable } from './components/SafesTable';
 import { SYSTEMSTATE_QUERY } from './utils/queries';
 import { useQuery } from '@apollo/client';
-import { formatNumber } from './utils/helpers';
+import { formatNumber, collateralRatio } from './utils/helpers';
 
 export default function Home() {
   const { loading, data } = useQuery(SYSTEMSTATE_QUERY);
 
   const [raiDebt, setRaiDebt] = useState('');
+  const [collateral, setCollateral] = useState('');
+  const [raiPrice, setRaiPrice] = useState('');
+  const [collateralPrice, setCollateralPrice] = useState('');
 
   useEffect(() => {
     if (data) {
       const globalDebt = data.systemStates[0].globalDebt;
-      const formattedDebt = formatNumber(globalDebt);
-      setRaiDebt(formattedDebt);
+
+      const globalCollateral =
+        data.collateralPrices[0].collateral.totalCollateral;
+
+      setRaiPrice(data.dailyStats[0].marketPriceUsd);
+      setCollateralPrice(
+        data.collateralPrices[0].collateral.currentPrice.value
+      );
+      setRaiDebt(globalDebt);
+      setCollateral(globalCollateral);
     }
   }, [data]);
 
@@ -91,13 +102,63 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {raiDebt}
+                {formatNumber(raiDebt)}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 RAI
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Debt
+              </Text>
+            </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                {formatNumber(collateral)}
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                ETH
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                Collateral
+              </Text>
+            </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                {collateralRatio(
+                  collateral,
+                  collateralPrice,
+                  raiDebt,
+                  raiPrice
+                )}{' '}
+                %
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                CR
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                Collateral Ratio
               </Text>
             </Flex>
           </SimpleGrid>

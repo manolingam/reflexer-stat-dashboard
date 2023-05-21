@@ -7,6 +7,17 @@ export const SYSTEMSTATE_QUERY = gql`
       globalDebt
       totalActiveSafeCount
     }
+    collateralPrices(orderBy: timestamp, orderDirection: desc, first: 1) {
+      collateral {
+        totalCollateral
+        currentPrice {
+          value
+        }
+      }
+    }
+    dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
+      marketPriceUsd
+    }
   }
 `;
 

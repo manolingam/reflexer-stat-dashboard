@@ -166,9 +166,10 @@ export const SafesTable = () => {
                   </Flex>
                 </HStack>
               </Th>
-              <Th textAlign='right' color='black' maxW='50px'>
-                CR
+              <Th textAlign='center' color='black'>
+                Collateral Ratio
               </Th>
+
               <Th textAlign='center' color='black'>
                 Saviour Enabled
               </Th>
@@ -205,7 +206,7 @@ export const SafesTable = () => {
                       <Td textAlign='right'>
                         {formatNumber(records.collateral)} ETH
                       </Td>
-                      <Td textAlign='right'>
+                      <Td textAlign='center'>
                         {collateralRatio(
                           records.collateral,
                           records.collateralType.currentPrice.value,

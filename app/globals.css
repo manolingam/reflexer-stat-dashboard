@@ -6,6 +6,7 @@
 
 body {
   overflow-y: overlay;
+  background: black;
 }
 
 html {
