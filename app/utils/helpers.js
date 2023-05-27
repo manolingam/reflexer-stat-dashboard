@@ -67,3 +67,24 @@ export function collateralRatio(
   // Return the reciprocal of the LTV ratio rounded to two decimal places
   return parseFloat(reciprocal.toFixed(2)) * 100;
 }
+
+export function calculateLiquidationPercentage(
+  collateralPrice,
+  debtValue,
+  liquidationPrice
+) {
+  // Check if collateral price is below liquidation price
+  if (collateralPrice < liquidationPrice) {
+    // Calculate the liquidation percentage (negative)
+    const liquidationPercentage =
+      ((collateralPrice - debtValue) / liquidationPrice) * 100;
+
+    return liquidationPercentage.toFixed(1);
+  } else {
+    // Calculate the liquidation percentage (positive)
+    const liquidationPercentage =
+      (debtValue / (collateralPrice - liquidationPrice)) * 100;
+
+    return liquidationPercentage.toFixed(1);
+  }
+}

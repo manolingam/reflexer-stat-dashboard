@@ -17,23 +17,22 @@ import {
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { ALLSAFES_QUERY, RAIPRICE_QUERY } from '../utils/queries';
+import { ALLSAFES_QUERY } from '../utils/queries';
 import { PageNumbers } from './PageNumbers';
 import {
   formatNumber,
-  calculateLTVRatio,
   collateralRatio,
-  getAccountString
+  getAccountString,
+  calculateLiquidationPercentage
 } from '../utils/helpers';
 import { FaEthereum } from 'react-icons/fa';
 import { FaAngleDown, FaAngleUp, FaArrowRight } from 'react-icons/fa';
 
 const RECORDS_PER_PAGE = 10;
 
-export const SafesTable = () => {
+export const SafesTable = ({ raiPrice, collateralPrice }) => {
   const router = useRouter();
   const [safes, setSafes] = useState([]);
-  const [raiPrice, setRaiPrice] = useState(1);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -55,8 +54,6 @@ export const SafesTable = () => {
       orderDirection: sortBy.direction
     }
   });
-
-  const { data: raiPriceData } = useQuery(RAIPRICE_QUERY);
 
   useEffect(() => {
     fetchMore({
@@ -80,12 +77,6 @@ export const SafesTable = () => {
   }, [safesData]);
 
   useEffect(() => {
-    if (raiPriceData) {
-      setRaiPrice(raiPriceData.dailyStats[0].marketPriceUsd);
-    }
-  }, [raiPriceData]);
-
-  useEffect(() => {
     fetchMore({
       variables: { first: 10, skip: currentPage * RECORDS_PER_PAGE }
     });
@@ -102,7 +93,7 @@ export const SafesTable = () => {
 
   return (
     <Flex direction='column'>
-      <Text fontSize='28px' mb='1rem'>
+      <Text fontSize='28px' mb='1rem' opacity='0.7'>
         All Safes
       </Text>
 
@@ -171,6 +162,10 @@ export const SafesTable = () => {
               </Th>
 
               <Th textAlign='center' color='black'>
+                Liquidation Price
+              </Th>
+
+              <Th textAlign='center' color='black'>
                 Saviour Enabled
               </Th>
               <Th></Th>
@@ -195,16 +190,22 @@ export const SafesTable = () => {
                       <Td>
                         <Text>{getAccountString(records.owner.address)}</Text>
                       </Td>
-                      <Td textAlign='right'>
-                        {formatNumber(records.debt)} RAI
-                      </Td>
 
                       <Td textAlign='right'>
                         <HStack justifyContent='flex-end'>
                           <FaEthereum />{' '}
-                          <Text>{formatNumber(records.collateral)} ETH</Text>
+                          <Text>
+                            {formatNumber(records.collateral)} ETH / $
+                            {formatNumber(records.collateral * collateralPrice)}
+                          </Text>
                         </HStack>
                       </Td>
+
+                      <Td textAlign='right'>
+                        {formatNumber(records.debt)} RAI / $
+                        {formatNumber(records.debt * raiPrice)}
+                      </Td>
+
                       <Td textAlign='center'>
                         {collateralRatio(
                           records.collateral,
@@ -214,6 +215,20 @@ export const SafesTable = () => {
                         )}{' '}
                         %
                       </Td>
+                      <Td textAlign='center'>
+                        $
+                        {formatNumber(
+                          records.collateralType.currentPrice.liquidationPrice
+                        )}{' '}
+                        /{' '}
+                        {calculateLiquidationPercentage(
+                          collateralPrice * records.collateral,
+                          raiPrice * records.debt,
+                          records.collateralType.currentPrice.liquidationPrice
+                        )}{' '}
+                        %
+                      </Td>
+
                       <Td textAlign='center'>
                         <Text>
                           {records.saviour && records.saviour.allowed
@@ -251,6 +266,11 @@ export const SafesTable = () => {
                     </Box>
                   </Td>
                   <Td textAlign='right'>
+                    <Box width='100%'>
+                      <Skeleton height='20px' py='.5rem' />
+                    </Box>
+                  </Td>
+                  <Td textAlign='center'>
                     <Box width='100%'>
                       <Skeleton height='20px' py='.5rem' />
                     </Box>

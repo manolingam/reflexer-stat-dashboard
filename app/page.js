@@ -1,6 +1,12 @@
 'use client';
 
-import { Flex, Text, SimpleGrid, Skeleton } from '@chakra-ui/react';
+import {
+  Flex,
+  Text,
+  SimpleGrid,
+  Skeleton,
+  Link as ChakraLink
+} from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { SafesTable } from './components/SafesTable';
 import { SYSTEMSTATE_QUERY } from './utils/queries';
@@ -33,21 +39,20 @@ export default function Home() {
 
   return (
     <Flex direction='column'>
-      <Flex
-        direction={{ lg: 'row', sm: 'column' }}
-        justifyContent='space-between'
-        mb='4rem'
-      >
-        <Flex direction='column' mb={{ lg: 0, sm: '2rem' }}>
-          <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem'>
+      <Flex direction='column' justifyContent='space-between' mb='4rem'>
+        <Flex direction='column' mb='2rem'>
+          <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem' opacity='0.7'>
             Explore Reflexer Safes
           </Text>
-          <Text fontSize='14px' maxW='400px'>
+          <Text fontSize={{ lg: '16px', sm: '14px' }} maxW='800px'>
             Find current and historical information on collateralised debt
-            positions in the reflexer protocol
+            positions in the reflexer protocol.
           </Text>
         </Flex>
 
+        <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem' opacity='0.7'>
+          Global Stats
+        </Text>
         {!loading ? (
           <SimpleGrid columns='3' gap='5'>
             <Flex
@@ -161,13 +166,103 @@ export default function Home() {
                 Collateral Ratio
               </Text>
             </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                $ {formatNumber(collateralPrice)}
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                ETH
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                Price
+              </Text>
+            </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                ${' '}
+                {formatNumber(
+                  data.systemStates[0].currentRedemptionPrice.value
+                )}
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                Redemption Price
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                RAI
+              </Text>
+            </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                {Number(
+                  data.systemStates[0].currentRedemptionPrice.redemptionRate
+                ).toFixed(2)}{' '}
+                %
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                Redemption Rate
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                RAI
+              </Text>
+            </Flex>
+            <Flex
+              direction='row'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='center'
+              justifyContent='flex-start'
+            >
+              <ChakraLink
+                textDecoration='underline'
+                wordBreak='break-word'
+                mr='1rem'
+                cursor='pointer'
+                _hover={{ opacity: 0.7 }}
+                href='https://stats.reflexer.finance/'
+                isExternal
+              >
+                Click for more stats..
+              </ChakraLink>
+            </Flex>
           </SimpleGrid>
         ) : (
           <Skeleton w='30%' h='100px' />
         )}
       </Flex>
 
-      <SafesTable />
+      <SafesTable raiPrice={raiPrice} collateralPrice={collateralPrice} />
     </Flex>
   );
 }

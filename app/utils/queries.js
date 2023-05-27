@@ -6,6 +6,10 @@ export const SYSTEMSTATE_QUERY = gql`
       safeCount
       globalDebt
       totalActiveSafeCount
+      currentRedemptionPrice {
+        redemptionRate
+        value
+      }
     }
     collateralPrices(orderBy: timestamp, orderDirection: desc, first: 1) {
       collateral {
@@ -52,6 +56,7 @@ export const ALLSAFES_QUERY = gql`
       collateralType {
         currentPrice {
           value
+          liquidationPrice
         }
         safeCount
       }
