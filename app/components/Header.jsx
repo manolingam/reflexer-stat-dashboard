@@ -32,6 +32,7 @@ export const Header = () => {
         <Input
           onChange={(e) => setSafeId(e.target.value)}
           placeholder='safe id'
+          onKeyDown={() => router.push(`/safe/${safeId}`)}
         />
         <Button
           background='#3ac1b9'

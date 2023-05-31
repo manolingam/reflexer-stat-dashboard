@@ -9,17 +9,18 @@ import {
   VStack,
   Button,
   Tag,
-  HStack
+  HStack,
+  Link as ChakraLink
 } from '@chakra-ui/react';
 import { GrPrevious } from 'react-icons/gr';
-import { SAFE_QUERY, RAIPRICE_QUERY } from '@/app/utils/queries';
+import { SAFE_QUERY } from '@/app/utils/queries';
 import { useQuery } from '@apollo/client';
 import { useRouter } from 'next/navigation';
 import {
   getAccountString,
   formatNumber,
-  calculateLTVRatio,
-  collateralRatio
+  getLTVRatio,
+  getCollateralRatio
 } from '@/app/utils/helpers';
 import { useState, useEffect } from 'react';
 
@@ -28,28 +29,27 @@ export default function SafePage({ params }) {
     variables: { id: params.safeId }
   });
 
-  const { data: raiPriceData } = useQuery(RAIPRICE_QUERY);
-
   const [raiPrice, setRaiPrice] = useState(1);
   const [safe, setSafe] = useState(null);
 
   const router = useRouter();
 
   useEffect(() => {
-    if (raiPriceData) {
-      setRaiPrice(raiPriceData.dailyStats[0].marketPriceUsd);
-    }
-  }, [raiPriceData]);
-
-  useEffect(() => {
     if (safeData) {
       setSafe(safeData.safes[0]);
+      setRaiPrice(safeData.dailyStats[0].marketPriceUsd);
     }
   }, [safeData]);
 
   return (
     <Flex direction='column'>
-      <Flex direction='column' mb='2rem' p='1rem'>
+      <Flex
+        direction={{ lg: 'row', sm: 'column' }}
+        alignItems={{ lg: 'center', sm: 'flex-start' }}
+        justifyContent='space-between'
+        mb='2rem'
+        p='1rem'
+      >
         <HStack fontSize={{ lg: '36px', sm: '24px' }} mb='10px'>
           <Button
             background='#3ac1b9'
@@ -73,37 +73,91 @@ export default function SafePage({ params }) {
             </Text>
           )}
         </HStack>
-        {!safe ? (
-          <Skeleton w='200px' h='16px' />
-        ) : (
-          <HStack>
-            <Text fontSize='12px'>Owned by</Text>
-            <Tag w='auto'>{getAccountString(safe.owner.address)}</Tag>{' '}
-          </HStack>
-        )}
+        <SimpleGrid columns={{ lg: 2, sm: 1 }} gap='2'>
+          {!safe ? (
+            <Skeleton w='200px' h='16px' />
+          ) : (
+            <HStack>
+              <ChakraLink
+                href={`https://etherscan.io/address/${safe.owner.address}`}
+                isExternal
+                bg='#0784c3'
+                color='white'
+                borderRadius='5px'
+                py='5px'
+                px='10px'
+                fontSize='14px'
+                textDecoration='none'
+                _hover={{
+                  opacity: 0.7
+                }}
+              >
+                Owned by {getAccountString(safe.owner.address)}
+              </ChakraLink>
+            </HStack>
+          )}
+          {!safe ? (
+            <Skeleton w='200px' h='16px' />
+          ) : (
+            <HStack>
+              <ChakraLink
+                href={`https://app.reflexer.finance/#/safes/${safe.safeId}`}
+                isExternal
+                bg='#3ac1b9'
+                color='black'
+                borderRadius='5px'
+                py='5px'
+                px='10px'
+                fontSize='14px'
+                textDecoration='none'
+                _hover={{
+                  opacity: 0.7
+                }}
+              >
+                View in dapp
+              </ChakraLink>
+            </HStack>
+          )}
+        </SimpleGrid>
       </Flex>
 
       <Flex direction='row' p='1rem' mb='3rem'>
         <Flex direction='column'>
-          <SimpleGrid columns={{ lg: 4, sm: 2 }} gap='10' mb='2rem'>
+          <SimpleGrid columns={{ lg: 2, sm: 2 }} gap='10' mb='2rem'>
             <VStack alignItems='flex-start'>
               <Text opacity='0.7'>Collateral</Text>
               {!safe ? (
                 <Skeleton w='100px' h='30px' />
               ) : (
-                <HStack alignItems='baseline'>
-                  <Text
-                    background='linear-gradient(to right, #41c1d0, #1a6c51)'
-                    backgroundClip='text'
-                    fontWeight='extrabold'
-                    fontSize={{ lg: '32px', sm: '18px' }}
-                  >
-                    {formatNumber(safe.collateral)}
-                  </Text>
-                  <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                    ETH
-                  </Text>
-                </HStack>
+                <Flex direction='column'>
+                  <HStack alignItems='baseline'>
+                    <Text
+                      background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                      backgroundClip='text'
+                      fontWeight='extrabold'
+                      fontSize={{ lg: '32px', sm: '18px' }}
+                    >
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'decimal',
+                        minimumFractionDigits: 2
+                      }).format(Number(formatNumber(safe.collateral)))}
+                    </Text>
+                    <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                      ETH
+                    </Text>
+                  </HStack>
+                  <HStack alignItems='baseline'>
+                    <Text color='white' fontSize='18px'>
+                      ${' '}
+                      {Number(
+                        formatNumber(
+                          safe.collateral *
+                            safe.collateralType.currentPrice.value
+                        )
+                      ).toLocaleString('en-US')}
+                    </Text>
+                  </HStack>
+                </Flex>
               )}
             </VStack>
             <VStack alignItems='flex-start'>
@@ -111,19 +165,32 @@ export default function SafePage({ params }) {
               {!safe ? (
                 <Skeleton w='100px' h='30px' />
               ) : (
-                <HStack alignItems='baseline'>
-                  <Text
-                    background='linear-gradient(to right, #41c1d0, #1a6c51)'
-                    backgroundClip='text'
-                    fontWeight='extrabold'
-                    fontSize={{ lg: '32px', sm: '18px' }}
-                  >
-                    {formatNumber(safe.debt)}
-                  </Text>
-                  <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                    RAI
-                  </Text>
-                </HStack>
+                <Flex direction='column'>
+                  <HStack alignItems='baseline'>
+                    <Text
+                      background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                      backgroundClip='text'
+                      fontWeight='extrabold'
+                      fontSize={{ lg: '32px', sm: '18px' }}
+                    >
+                      {new Intl.NumberFormat('en-US', {
+                        style: 'decimal',
+                        minimumFractionDigits: 2
+                      }).format(Number(formatNumber(safe.debt)))}
+                    </Text>
+                    <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                      RAI
+                    </Text>
+                  </HStack>
+                  <HStack alignItems='baseline'>
+                    <Text color='white' fontSize='18px'>
+                      ${' '}
+                      {Number(
+                        formatNumber(raiPrice * safe.debt)
+                      ).toLocaleString('en-US')}
+                    </Text>
+                  </HStack>
+                </Flex>
               )}
             </VStack>
             <VStack alignItems='flex-start'>
@@ -137,7 +204,7 @@ export default function SafePage({ params }) {
                   backgroundClip='text'
                   fontWeight='extrabold'
                 >
-                  {calculateLTVRatio(
+                  {getLTVRatio(
                     safe.collateral,
                     safe.collateralType.currentPrice.value,
                     safe.debt,
@@ -158,11 +225,12 @@ export default function SafePage({ params }) {
                   backgroundClip='text'
                   fontWeight='extrabold'
                 >
-                  {collateralRatio(
+                  {getCollateralRatio(
                     safe.collateral,
-                    safe.collateralType.currentPrice.value,
                     safe.debt,
-                    raiPrice
+                    safe.collateralType.currentPrice.liquidationPrice,
+                    safe.collateralType.currentPrice.collateral
+                      .liquidationCRatio
                   )}
                   %
                 </Text>
@@ -177,7 +245,10 @@ export default function SafePage({ params }) {
                 <Skeleton w='70px' h='10px' />
               ) : (
                 <Text fontSize='18px'>
-                  $ {formatNumber(safe.collateralType.currentPrice.value)}
+                  ${' '}
+                  {Number(
+                    formatNumber(safe.collateralType.currentPrice.value)
+                  ).toLocaleString()}
                 </Text>
               )}
             </VStack>
@@ -188,9 +259,11 @@ export default function SafePage({ params }) {
               ) : (
                 <Text fontSize='18px'>
                   ${' '}
-                  {formatNumber(
-                    safe.collateralType.currentPrice.liquidationPrice
-                  )}
+                  {Number(
+                    formatNumber(
+                      safe.collateralType.currentPrice.liquidationPrice
+                    )
+                  ).toLocaleString('en-US')}
                 </Text>
               )}
             </VStack>
@@ -198,7 +271,13 @@ export default function SafePage({ params }) {
         </Flex>
       </Flex>
 
-      {safe && <SafeTable safeId={safe.id} />}
+      {safe && (
+        <SafeTable
+          safeId={safe.id}
+          collateralPrice={safe.collateralType.currentPrice.value}
+          debtPrice={raiPrice}
+        />
+      )}
     </Flex>
   );
 }

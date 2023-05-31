@@ -11,7 +11,7 @@ import { useEffect, useState } from 'react';
 import { SafesTable } from './components/SafesTable';
 import { SYSTEMSTATE_QUERY } from './utils/queries';
 import { useQuery } from '@apollo/client';
-import { formatNumber, collateralRatio } from './utils/helpers';
+import { formatNumber, getCollateralRatio } from './utils/helpers';
 
 export default function Home() {
   const { loading, data } = useQuery(SYSTEMSTATE_QUERY);
@@ -20,6 +20,8 @@ export default function Home() {
   const [collateral, setCollateral] = useState('');
   const [raiPrice, setRaiPrice] = useState('');
   const [collateralPrice, setCollateralPrice] = useState('');
+  const [liquidationPrice, setLiquidationPrice] = useState('');
+  const [liquidationCRatio, setLiquidationCRatio] = useState('');
 
   useEffect(() => {
     if (data) {
@@ -34,6 +36,12 @@ export default function Home() {
       );
       setRaiDebt(globalDebt);
       setCollateral(globalCollateral);
+      setLiquidationPrice(
+        data.safes[0].collateralType.currentPrice.liquidationPrice
+      );
+      setLiquidationCRatio(
+        data.safes[0].collateralType.currentPrice.collateral.liquidationCRatio
+      );
     }
   }, [data]);
 
@@ -41,16 +49,20 @@ export default function Home() {
     <Flex direction='column'>
       <Flex direction='column' justifyContent='space-between' mb='4rem'>
         <Flex direction='column' mb='2rem'>
-          <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem' opacity='0.7'>
+          <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem'>
             Explore Reflexer Safes
           </Text>
-          <Text fontSize={{ lg: '16px', sm: '14px' }} maxW='800px'>
+          <Text
+            fontSize={{ lg: '16px', sm: '14px' }}
+            maxW='800px'
+            opacity='0.7'
+          >
             Find current and historical information on collateralised debt
-            positions in the reflexer protocol.
+            positions in the Reflexer protocol.
           </Text>
         </Flex>
 
-        <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem' opacity='0.7'>
+        <Text fontSize={{ lg: '28px', sm: '18px' }} mb='1rem'>
           Global Stats
         </Text>
         {!loading ? (
@@ -68,7 +80,10 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {data.systemStates[0].safeCount}
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 0
+                }).format(Number(data.systemStates[0].safeCount))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Safes
@@ -107,7 +122,10 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {formatNumber(raiDebt)}
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 2
+                }).format(Number(formatNumber(raiDebt)))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 RAI
@@ -129,7 +147,10 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {formatNumber(collateral)}
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 2
+                }).format(Number(formatNumber(collateral)))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 ETH
@@ -151,12 +172,12 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {collateralRatio(
+                {getCollateralRatio(
                   collateral,
-                  collateralPrice,
                   raiDebt,
-                  raiPrice
-                )}{' '}
+                  liquidationPrice,
+                  liquidationCRatio
+                )}
                 %
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
@@ -179,7 +200,8 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                $ {formatNumber(collateralPrice)}
+                ${' '}
+                {Number(formatNumber(collateralPrice)).toLocaleString('en-US')}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 ETH
@@ -202,9 +224,11 @@ export default function Home() {
                 fontWeight='extrabold'
               >
                 ${' '}
-                {formatNumber(
-                  data.systemStates[0].currentRedemptionPrice.value
-                )}
+                {Number(
+                  formatNumber(
+                    data.systemStates[0].currentRedemptionPrice.value
+                  )
+                ).toLocaleString('en-US')}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Redemption Price

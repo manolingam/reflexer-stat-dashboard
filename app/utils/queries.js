@@ -22,6 +22,17 @@ export const SYSTEMSTATE_QUERY = gql`
     dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
       marketPriceUsd
     }
+    safes(first: 1) {
+      collateralType {
+        safeCount
+        currentPrice {
+          collateral {
+            liquidationCRatio
+          }
+          liquidationPrice
+        }
+      }
+    }
   }
 `;
 
@@ -33,7 +44,7 @@ export const RAIPRICE_QUERY = gql`
   }
 `;
 
-export const ALLSAFES_QUERY = gql`
+export const ALLSAFES_QUERY_WITH_ZERO = gql`
   query GetAllSafes(
     $first: Int
     $skip: Int
@@ -57,11 +68,66 @@ export const ALLSAFES_QUERY = gql`
         currentPrice {
           value
           liquidationPrice
+          collateral {
+            liquidationCRatio
+          }
         }
+
         safeCount
       }
       saviour {
         allowed
+      }
+    }
+    systemStates {
+      totalActiveSafeCount
+      currentRedemptionPrice {
+        value
+      }
+    }
+  }
+`;
+
+export const ALLSAFES_QUERY_NOT_ZERO = gql`
+  query GetAllSafes(
+    $first: Int
+    $skip: Int
+    $orderBy: String
+    $orderDirection: String
+  ) {
+    safes(
+      first: $first
+      skip: $skip
+      orderBy: $orderBy
+      orderDirection: $orderDirection
+      where: { collateral_not: "0" }
+    ) {
+      id
+      safeId
+      collateral
+      debt
+      owner {
+        address
+      }
+      collateralType {
+        currentPrice {
+          value
+          liquidationPrice
+          collateral {
+            liquidationCRatio
+          }
+        }
+
+        safeCount
+      }
+      saviour {
+        allowed
+      }
+    }
+    systemStates {
+      totalActiveSafeCount
+      currentRedemptionPrice {
+        value
       }
     }
   }
@@ -81,8 +147,14 @@ export const SAFE_QUERY = gql`
         currentPrice {
           value
           liquidationPrice
+          collateral {
+            liquidationCRatio
+          }
         }
       }
+    }
+    dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
+      marketPriceUsd
     }
   }
 `;

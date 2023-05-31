@@ -1,4 +1,6 @@
-export function formatNumber(number) {
+import numeral from 'numeral';
+
+export function formatNumberAlphabetical(number) {
   const billion = 1e9;
   const million = 1e6;
   const thousand = 1e3;
@@ -6,34 +8,28 @@ export function formatNumber(number) {
   const parsedNumber = parseFloat(number); // Parse the string to a number
 
   if (Math.abs(parsedNumber) >= billion) {
-    return (parsedNumber / billion).toFixed(2) + 'B';
+    return (parsedNumber / billion).toFixed(0) + 'B';
   } else if (Math.abs(parsedNumber) >= million) {
-    return (parsedNumber / million).toFixed(2) + 'M';
+    return (parsedNumber / million).toFixed(0) + 'M';
   } else if (Math.abs(parsedNumber) >= thousand) {
-    return (parsedNumber / thousand).toFixed(2) + 'K';
+    return (parsedNumber / thousand).toFixed(0) + 'K';
   }
 
-  return parsedNumber.toFixed(2);
+  return parsedNumber.toFixed(0);
 }
 
-export function calculateLTVRatio(
+export function getLTVRatio(
   totalCollateral,
   collateralPrice,
   totalDebt,
   debtPrice
 ) {
-  // Calculate the value of collateral
   const collateralValue = totalCollateral * collateralPrice;
-
-  // Calculate the value of debt
   const debtValue = totalDebt * debtPrice;
 
-  // Calculate the LTV ratio
   const ltvRatio = (debtValue / collateralValue) * 100;
 
   if (isNaN(ltvRatio)) return 0;
-
-  // Return the LTV ratio rounded to two decimal places
   return parseFloat(ltvRatio.toFixed(2));
 }
 
@@ -44,29 +40,47 @@ export const getAccountString = (account) => {
     .toUpperCase()}`;
 };
 
-export function collateralRatio(
+export const formatNumber = (value, digits = 4, round = false) => {
+  const nOfDigits = Array.from(Array(digits), (_) => 0).join('');
+  if (!value) {
+    return '0';
+  }
+  const n = Number(value);
+  if (n < 0) return value;
+  if (Number.isInteger(n) || value.length < 5) {
+    return n;
+  }
+  let val;
+  if (round) {
+    val = numeral(n).format(`0.${nOfDigits}`);
+  } else {
+    val = numeral(n).format(`0.${nOfDigits}`, Math.floor);
+  }
+
+  return isNaN(Number(val)) ? value : val;
+};
+
+export const getCollateralRatio = (
   totalCollateral,
-  collateralPrice,
   totalDebt,
-  debtPrice
-) {
-  // Calculate the value of collateral
-  const collateralValue = totalCollateral * collateralPrice;
+  liquidationPrice,
+  liquidationCRatio
+) => {
+  if (Number(totalCollateral) === 0) {
+    return '0';
+  } else if (Number(totalDebt) === 0) {
+    return '∞';
+  }
+  const denominator = numeral(totalDebt).value();
 
-  // Calculate the value of debt
-  const debtValue = totalDebt * debtPrice;
+  const numerator = numeral(totalCollateral)
+    .multiply(liquidationPrice)
+    .multiply(liquidationCRatio);
 
-  // Calculate the LTV ratio
-  const ltvRatio = (debtValue / collateralValue) * 100;
+  const value = numerator.divide(denominator).multiply(100);
 
-  if (isNaN(ltvRatio)) return 0;
-
-  // Calculate the reciprocal of the LTV ratio
-  const reciprocal = 1 / (ltvRatio / 100);
-
-  // Return the reciprocal of the LTV ratio rounded to two decimal places
-  return parseFloat(reciprocal.toFixed(2)) * 100;
-}
+  return formatNumber(value.value().toString(), 2, true);
+};
 
 export function calculateLiquidationPercentage(
   collateralPrice,
@@ -88,3 +102,51 @@ export function calculateLiquidationPercentage(
     return liquidationPercentage.toFixed(1);
   }
 }
+
+export const getLiquidationPrice = (
+  totalCollateral,
+  totalDebt,
+  liquidationCRatio,
+  currentRedemptionPrice
+) => {
+  if (Number(totalCollateral) === 0) {
+    return '0';
+  } else if (Number(totalDebt) === 0) {
+    return '0';
+  }
+
+  const numerator = numeral(totalDebt)
+    .multiply(liquidationCRatio)
+    .multiply(currentRedemptionPrice)
+    .divide(totalCollateral);
+
+  return formatNumber(numerator.value().toString(), 2);
+};
+
+export const getActivityName = (debt, collateral) => {
+  if (debt != 0) {
+    return Math.sign(debt) == 1 ? 'Mint RAI' : 'Burn RAI';
+  } else if (collateral != 0) {
+    return Math.sign(collateral) == 1 ? 'Deposit ETH' : 'Withdraw ETH';
+  } else {
+    return 'No change';
+  }
+};
+
+export const getActivityBool = (debt, collateral) => {
+  if (debt != 0) {
+    return Math.sign(debt) == 1 ? 'increase' : 'decrease';
+  } else if (collateral != 0) {
+    return Math.sign(collateral) == 1 ? 'increase' : 'decrease';
+  } else {
+    return 'none';
+  }
+};
+
+export const getFormattedTimestamp = (timestamp) => {
+  const date = new Date(timestamp);
+  const formattedDate = `${date.getFullYear()}-${
+    date.getMonth() + 1
+  }-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+  return formattedDate;
+};

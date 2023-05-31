@@ -10,25 +10,38 @@ import {
   Th,
   Td,
   TableContainer,
-  Box,
-  Skeleton,
-  HStack
+  HStack,
+  Tooltip,
+  Checkbox,
+  Spinner,
+  Link as ChakraLink
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { ALLSAFES_QUERY } from '../utils/queries';
+import {
+  ALLSAFES_QUERY_NOT_ZERO,
+  ALLSAFES_QUERY_WITH_ZERO
+} from '../utils/queries';
 import { PageNumbers } from './PageNumbers';
 import {
   formatNumber,
-  collateralRatio,
+  formatNumberAlphabetical,
   getAccountString,
-  calculateLiquidationPercentage
+  calculateLiquidationPercentage,
+  getLiquidationPrice,
+  getCollateralRatio
 } from '../utils/helpers';
-import { FaEthereum } from 'react-icons/fa';
-import { FaAngleDown, FaAngleUp, FaArrowRight } from 'react-icons/fa';
+import {
+  FaAngleDown,
+  FaAngleUp,
+  FaInfoCircle,
+  FaExternalLinkSquareAlt,
+  FaCheckCircle
+} from 'react-icons/fa';
+import { RxCrossCircled } from 'react-icons/rx';
 
-const RECORDS_PER_PAGE = 10;
+const RECORDS_PER_PAGE = 50;
 
 export const SafesTable = ({ raiPrice, collateralPrice }) => {
   const router = useRouter();
@@ -36,6 +49,8 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+
+  const [notZeroSafes, setNotZeroSafes] = useState(true);
 
   const [sortBy, setSortBy] = useState({
     type: 'collateral',
@@ -46,19 +61,22 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
     data: safesData,
     fetchMore,
     loading
-  } = useQuery(ALLSAFES_QUERY, {
-    variables: {
-      first: 10,
-      skip: currentPage * RECORDS_PER_PAGE,
-      orderBy: sortBy.type,
-      orderDirection: sortBy.direction
+  } = useQuery(
+    notZeroSafes ? ALLSAFES_QUERY_NOT_ZERO : ALLSAFES_QUERY_WITH_ZERO,
+    {
+      variables: {
+        first: RECORDS_PER_PAGE,
+        skip: currentPage * RECORDS_PER_PAGE,
+        orderBy: sortBy.type,
+        orderDirection: sortBy.direction
+      }
     }
-  });
+  );
 
   useEffect(() => {
     fetchMore({
       variables: {
-        first: 10,
+        first: RECORDS_PER_PAGE,
         skip: currentPage * RECORDS_PER_PAGE,
         orderBy: sortBy.type,
         orderDirection: sortBy.direction
@@ -69,7 +87,10 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
   useEffect(() => {
     if (safesData) {
       let _totalPages = Math.ceil(
-        safesData.safes[0].collateralType.safeCount / RECORDS_PER_PAGE
+        (notZeroSafes
+          ? Number(safesData.systemStates[0].totalActiveSafeCount)
+          : Number(safesData.safes[0].collateralType.safeCount)) /
+          RECORDS_PER_PAGE
       );
       setTotalPages(_totalPages);
       setSafes(safesData.safes);
@@ -78,9 +99,12 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
 
   useEffect(() => {
     fetchMore({
-      variables: { first: 10, skip: currentPage * RECORDS_PER_PAGE }
+      variables: {
+        first: RECORDS_PER_PAGE,
+        skip: currentPage * RECORDS_PER_PAGE
+      }
     });
-  }, [sortBy]);
+  }, [sortBy, notZeroSafes]);
 
   const updateSortBy = (type) => {
     setSortBy((prevState) => ({
@@ -91,135 +115,193 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
     setCurrentPage(0);
   };
 
+  const updateNotZeroFilter = () => {
+    setNotZeroSafes((prevState) => !prevState);
+    updateSortBy('collateral');
+  };
+
   return (
     <Flex direction='column'>
-      <Text fontSize='28px' mb='1rem' opacity='0.7'>
-        All Safes
-      </Text>
+      <HStack alignItems='center' justifyContent='space-between'>
+        <Text fontSize='28px' mb='1rem'>
+          All Safes
+        </Text>
+        <Checkbox
+          isChecked={notZeroSafes}
+          onChange={() => updateNotZeroFilter()}
+          size='sm'
+          opacity='0.7'
+        >
+          Hide zero collateral safes
+        </Checkbox>
+      </HStack>
 
-      <TableContainer>
-        <Table variant='unstyled'>
-          <Thead bg='#3ac1b9'>
-            <Tr fontSize='18px'>
-              <Th textAlign='left' color='black'>
-                Safe ID
-              </Th>
-              <Th textAlign='left' color='black'>
-                Owner
-              </Th>
-              <Th
-                textAlign='right'
-                onClick={() => updateSortBy('debt')}
-                cursor='pointer'
-                _hover={{
-                  opacity: 0.7
-                }}
-              >
-                <HStack justifyContent='flex-end' color='black'>
-                  <Text>Debt</Text>
-                  <Flex direction='column'>
-                    {sortBy.type === 'debt' ? (
-                      sortBy.direction === 'desc' ? (
-                        <FaAngleUp />
+      {!loading && (
+        <TableContainer>
+          <Table variant='unstyled'>
+            <Thead border='2px solid white'>
+              <Tr fontSize='18px'>
+                <Th textAlign='left'>Safe ID</Th>
+                <Th textAlign='left'>Owner</Th>
+                <Th
+                  textAlign='right'
+                  onClick={() => updateSortBy('debt')}
+                  cursor='pointer'
+                  _hover={{
+                    opacity: 0.7
+                  }}
+                >
+                  <HStack justifyContent='flex-start'>
+                    <Text>Debt</Text>
+                    <Flex direction='column'>
+                      {sortBy.type === 'debt' ? (
+                        sortBy.direction === 'desc' ? (
+                          <FaAngleUp />
+                        ) : (
+                          <FaAngleDown />
+                        )
                       ) : (
-                        <FaAngleDown />
-                      )
-                    ) : (
-                      <>
-                        <FaAngleUp /> <FaAngleDown />
-                      </>
-                    )}
-                  </Flex>
-                </HStack>
-              </Th>
-              <Th
-                textAlign='right'
-                onClick={() => updateSortBy('collateral')}
-                cursor='pointer'
-                _hover={{
-                  opacity: 0.7
-                }}
-              >
-                <HStack justifyContent='flex-end' color='black'>
-                  <Text>Collateral</Text>
-                  <Flex direction='column'>
-                    {sortBy.type === 'collateral' ? (
-                      sortBy.direction === 'desc' ? (
-                        <FaAngleUp />
+                        <>
+                          <FaAngleUp /> <FaAngleDown />
+                        </>
+                      )}
+                    </Flex>
+                  </HStack>
+                </Th>
+                <Th
+                  textAlign='right'
+                  onClick={() => updateSortBy('collateral')}
+                  cursor='pointer'
+                  _hover={{
+                    opacity: 0.7
+                  }}
+                >
+                  <HStack justifyContent='flex-start'>
+                    <Text>Collateral</Text>
+                    <Flex direction='column'>
+                      {sortBy.type === 'collateral' ? (
+                        sortBy.direction === 'desc' ? (
+                          <FaAngleUp />
+                        ) : (
+                          <FaAngleDown />
+                        )
                       ) : (
-                        <FaAngleDown />
-                      )
-                    ) : (
-                      <>
-                        <FaAngleUp /> <FaAngleDown />
-                      </>
-                    )}
-                  </Flex>
-                </HStack>
-              </Th>
-              <Th textAlign='center' color='black'>
-                Collateral Ratio
-              </Th>
-
-              <Th textAlign='center' color='black'>
-                Liquidation Price
-              </Th>
-
-              <Th textAlign='center' color='black'>
-                Saviour Enabled
-              </Th>
-              <Th></Th>
-            </Tr>
-          </Thead>
-
-          {!loading && (
+                        <>
+                          <FaAngleUp /> <FaAngleDown />
+                        </>
+                      )}
+                    </Flex>
+                  </HStack>
+                </Th>
+                <Th textAlign='center'>Collateral Ratio</Th>
+                <Th textAlign='center'>Liquidation Price</Th>
+                <Th textAlign='center'>Saviour</Th>
+              </Tr>
+            </Thead>
             <Tbody>
               {safes.length > 0 &&
                 safes.map((records, index) => {
                   return (
-                    <Tr
-                      key={index}
-                      fontSize='14px'
-                      cursor='pointer'
-                      _hover={{ opacity: 0.7 }}
-                      onClick={() => router.push(`/safe/${records.safeId}`)}
-                    >
+                    <Tr key={index} fontSize='14px'>
                       <Td>
-                        <Text>{records.safeId}</Text>
-                      </Td>
-                      <Td>
-                        <Text>{getAccountString(records.owner.address)}</Text>
-                      </Td>
-
-                      <Td textAlign='right'>
-                        <HStack justifyContent='flex-end'>
-                          <FaEthereum />{' '}
-                          <Text>
-                            {formatNumber(records.collateral)} ETH / $
-                            {formatNumber(records.collateral * collateralPrice)}
-                          </Text>
+                        <HStack
+                          bg='#3ac1b9'
+                          color='black'
+                          borderRadius='5px'
+                          p='5px'
+                          fontWeight='bold'
+                          _hover={{ opacity: 0.7 }}
+                          cursor='pointer'
+                          onClick={() => router.push(`/safe/${records.safeId}`)}
+                        >
+                          <FaExternalLinkSquareAlt />
+                          <Text>{records.safeId}</Text>
                         </HStack>
                       </Td>
+                      <Td>
+                        <Tooltip
+                          label={records.owner.address}
+                          placement='right'
+                          fontSize='14px'
+                        >
+                          <HStack color='#0784c3'>
+                            <FaInfoCircle />
+                            <ChakraLink
+                              href={`https://etherscan.io/address/${records.owner.address}`}
+                              isExternal
+                            >
+                              {getAccountString(records.owner.address)}
+                            </ChakraLink>
+                          </HStack>
+                        </Tooltip>
+                      </Td>
 
-                      <Td textAlign='right'>
-                        {formatNumber(records.debt)} RAI / $
-                        {formatNumber(records.debt * raiPrice)}
+                      <Td color='#3ac1b9'>
+                        <Tooltip
+                          label={`${formatNumber(
+                            records.debt
+                          )} RAI / $ ${formatNumber(records.debt * raiPrice)}`}
+                          placement='right'
+                          fontSize='14px'
+                        >
+                          <HStack>
+                            <FaInfoCircle />
+                            <Text>
+                              {formatNumberAlphabetical(records.debt)} RAI /{' '}
+                              {formatNumberAlphabetical(
+                                records.debt * raiPrice
+                              )}{' '}
+                              USD
+                            </Text>
+                          </HStack>
+                        </Tooltip>
+                      </Td>
+
+                      <Td>
+                        <Tooltip
+                          label={`${formatNumber(
+                            records.collateral
+                          )} ETH / $ ${formatNumber(
+                            records.collateral * collateralPrice
+                          )}`}
+                          placement='right'
+                          fontSize='14px'
+                        >
+                          <HStack>
+                            <FaInfoCircle />
+                            <Text>
+                              {formatNumberAlphabetical(records.collateral)} ETH
+                              / $
+                              {formatNumberAlphabetical(
+                                records.collateral * collateralPrice
+                              )}
+                            </Text>
+                          </HStack>
+                        </Tooltip>
                       </Td>
 
                       <Td textAlign='center'>
-                        {collateralRatio(
+                        {getCollateralRatio(
                           records.collateral,
-                          records.collateralType.currentPrice.value,
                           records.debt,
-                          raiPrice
+                          records.collateralType.currentPrice.liquidationPrice,
+                          records.collateralType.currentPrice.collateral
+                            .liquidationCRatio
                         )}{' '}
                         %
                       </Td>
                       <Td textAlign='center'>
                         $
-                        {formatNumber(
-                          records.collateralType.currentPrice.liquidationPrice
-                        )}{' '}
+                        {Number(
+                          getLiquidationPrice(
+                            records.collateral,
+                            records.debt,
+                            records.collateralType.currentPrice.collateral
+                              .liquidationCRatio,
+                            safesData.systemStates[0].currentRedemptionPrice
+                              .value
+                          )
+                        ).toLocaleString('en-US')}{' '}
                         /{' '}
                         {calculateLiquidationPercentage(
                           collateralPrice * records.collateral,
@@ -230,69 +312,38 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                       </Td>
 
                       <Td textAlign='center'>
-                        <Text>
-                          {records.saviour && records.saviour.allowed
-                            ? 'Enabled'
-                            : 'Disabled'}
-                        </Text>
-                      </Td>
-
-                      <Td textAlign='center'>
-                        <FaArrowRight />
+                        <Flex alignItems='center' justifyContent='center'>
+                          <Text
+                            textAlign='center'
+                            color={
+                              records.saviour && records.saviour.allowed
+                                ? 'green'
+                                : 'red'
+                            }
+                          >
+                            {records.saviour && records.saviour.allowed ? (
+                              <FaCheckCircle />
+                            ) : (
+                              <RxCrossCircled />
+                            )}
+                          </Text>
+                        </Flex>
                       </Td>
                     </Tr>
                   );
                 })}
             </Tbody>
-          )}
+          </Table>
+        </TableContainer>
+      )}
 
-          {loading && (
-            <Tbody>
-              {Array.from(Array(10).keys()).map((index) => (
-                <Tr key={index} fontSize='18px'>
-                  <Td>
-                    <Box width='100%'>
-                      <Skeleton height='20px' py='.5rem' />
-                    </Box>
-                  </Td>
-                  <Td textAlign='right'>
-                    <Box width='100%'>
-                      <Skeleton height='20px' py='.5rem' />
-                    </Box>
-                  </Td>
-                  <Td textAlign='right'>
-                    <Box width='100%'>
-                      <Skeleton height='20px' py='.5rem' />
-                    </Box>
-                  </Td>
-                  <Td textAlign='right'>
-                    <Box width='100%'>
-                      <Skeleton height='20px' py='.5rem' />
-                    </Box>
-                  </Td>
-                  <Td textAlign='center'>
-                    <Box width='100%'>
-                      <Skeleton height='20px' py='.5rem' />
-                    </Box>
-                  </Td>
-                  <Td textAlign='center'>
-                    <Box width='100%'>
-                      <Skeleton height='20px' py='.5rem' />
-                    </Box>
-                  </Td>
-                  <Td textAlign='center'>
-                    <Box width='100%'>
-                      <Skeleton height='18px' py='.5rem' />
-                    </Box>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          )}
-        </Table>
-      </TableContainer>
+      {loading && (
+        <Flex h='200px' mx='auto' alignItems='center' justifyContent='center'>
+          <Spinner color='#3ac1b9' />
+        </Flex>
+      )}
 
-      {totalPages && (
+      {totalPages > 0 && (
         <PageNumbers
           currentPage={currentPage}
           totalPages={totalPages}
