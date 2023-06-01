@@ -122,10 +122,8 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
 
   return (
     <Flex direction='column'>
-      <HStack alignItems='center' justifyContent='space-between'>
-        <Text fontSize='28px' mb='1rem'>
-          All Safes
-        </Text>
+      <HStack alignItems='center' justifyContent='space-between' mb='1rem'>
+        <Text fontSize={{ lg: '28px', sm: '18px' }}>All Safes</Text>
         <Checkbox
           isChecked={notZeroSafes}
           onChange={() => updateNotZeroFilter()}
@@ -247,11 +245,10 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                           <HStack>
                             <FaInfoCircle />
                             <Text>
-                              {formatNumberAlphabetical(records.debt)} RAI /{' '}
+                              {formatNumberAlphabetical(records.debt)} RAI / $
                               {formatNumberAlphabetical(
                                 records.debt * raiPrice
-                              )}{' '}
-                              USD
+                              )}
                             </Text>
                           </HStack>
                         </Tooltip>

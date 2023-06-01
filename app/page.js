@@ -124,8 +124,8 @@ export default function Home() {
               >
                 {new Intl.NumberFormat('en-US', {
                   style: 'decimal',
-                  minimumFractionDigits: 2
-                }).format(Number(formatNumber(raiDebt)))}
+                  minimumFractionDigits: 0
+                }).format(Number(formatNumber(raiDebt, 0, true)))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 RAI
@@ -274,6 +274,7 @@ export default function Home() {
                 mr='1rem'
                 cursor='pointer'
                 _hover={{ opacity: 0.7 }}
+                fontSize={{ lg: '18px', sm: '14px' }}
                 href='https://stats.reflexer.finance/'
                 isExternal
               >

@@ -47,7 +47,7 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
 
   return (
     <Flex direction='column'>
-      <Text fontSize='28px' mb='1rem'>
+      <Text fontSize={{ lg: '28px', sm: '22px' }} mb='1rem'>
         Activities
       </Text>
 
@@ -102,11 +102,13 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                             <FaInfoCircle />
                             <Text>
                               {formatNumberAlphabetical(
-                                records.deltaCollateral
+                                records.deltaCollateral,
+                                2
                               )}{' '}
-                              ETH / ${' '}
+                              ETH / $
                               {formatNumberAlphabetical(
-                                records.deltaCollateral * collateralPrice
+                                records.deltaCollateral * collateralPrice,
+                                2
                               )}
                             </Text>
                           </HStack>
@@ -123,10 +125,11 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                           <HStack>
                             <FaInfoCircle />
                             <Text>
-                              {formatNumberAlphabetical(records.deltaDebt)} RAI
-                              / $
+                              {formatNumberAlphabetical(records.deltaDebt, 2)}{' '}
+                              RAI / $
                               {formatNumberAlphabetical(
-                                records.deltaDebt * debtPrice
+                                records.deltaDebt * debtPrice,
+                                2
                               )}
                             </Text>
                           </HStack>

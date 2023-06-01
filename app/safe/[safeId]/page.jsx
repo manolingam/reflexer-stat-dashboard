@@ -86,7 +86,7 @@ export default function SafePage({ params }) {
                 borderRadius='5px'
                 py='5px'
                 px='10px'
-                fontSize='14px'
+                fontSize={{ lg: '14px', sm: '12px' }}
                 textDecoration='none'
                 _hover={{
                   opacity: 0.7
@@ -108,7 +108,7 @@ export default function SafePage({ params }) {
                 borderRadius='5px'
                 py='5px'
                 px='10px'
-                fontSize='14px'
+                fontSize={{ lg: '14px', sm: '12px' }}
                 textDecoration='none'
                 _hover={{
                   opacity: 0.7
@@ -121,7 +121,7 @@ export default function SafePage({ params }) {
         </SimpleGrid>
       </Flex>
 
-      <Flex direction='row' p='1rem' mb='3rem'>
+      <Flex direction='row' p='1rem' mb={{ lg: '3rem', sm: '1rem' }}>
         <Flex direction='column'>
           <SimpleGrid columns={{ lg: 2, sm: 2 }} gap='10' mb='2rem'>
             <VStack alignItems='flex-start'>
@@ -135,7 +135,7 @@ export default function SafePage({ params }) {
                       background='linear-gradient(to right, #41c1d0, #1a6c51)'
                       backgroundClip='text'
                       fontWeight='extrabold'
-                      fontSize={{ lg: '32px', sm: '18px' }}
+                      fontSize={{ lg: '32px', sm: '16px' }}
                     >
                       {new Intl.NumberFormat('en-US', {
                         style: 'decimal',
@@ -147,7 +147,7 @@ export default function SafePage({ params }) {
                     </Text>
                   </HStack>
                   <HStack alignItems='baseline'>
-                    <Text color='white' fontSize='18px'>
+                    <Text color='white' fontSize={{ lg: '18px', sm: '12px' }}>
                       ${' '}
                       {Number(
                         formatNumber(
@@ -171,7 +171,7 @@ export default function SafePage({ params }) {
                       background='linear-gradient(to right, #41c1d0, #1a6c51)'
                       backgroundClip='text'
                       fontWeight='extrabold'
-                      fontSize={{ lg: '32px', sm: '18px' }}
+                      fontSize={{ lg: '32px', sm: '16px' }}
                     >
                       {new Intl.NumberFormat('en-US', {
                         style: 'decimal',
@@ -183,7 +183,7 @@ export default function SafePage({ params }) {
                     </Text>
                   </HStack>
                   <HStack alignItems='baseline'>
-                    <Text color='white' fontSize='18px'>
+                    <Text color='white' fontSize={{ lg: '18px', sm: '12px' }}>
                       ${' '}
                       {Number(
                         formatNumber(raiPrice * safe.debt)
@@ -199,7 +199,7 @@ export default function SafePage({ params }) {
                 <Skeleton w='100px' h='30px' />
               ) : (
                 <Text
-                  fontSize={{ lg: '32px', sm: '18px' }}
+                  fontSize={{ lg: '32px', sm: '16px' }}
                   background='linear-gradient(to right, #41c1d0, #1a6c51)'
                   backgroundClip='text'
                   fontWeight='extrabold'
@@ -220,7 +220,7 @@ export default function SafePage({ params }) {
                 <Skeleton w='100px' h='30px' />
               ) : (
                 <Text
-                  fontSize={{ lg: '32px', sm: '18px' }}
+                  fontSize={{ lg: '32px', sm: '16px' }}
                   background='linear-gradient(to right, #41c1d0, #1a6c51)'
                   backgroundClip='text'
                   fontWeight='extrabold'
@@ -236,15 +236,12 @@ export default function SafePage({ params }) {
                 </Text>
               )}
             </VStack>
-          </SimpleGrid>
-
-          <Flex direction='row'>
             <VStack alignItems='flex-start' mr='2rem'>
               <Text opacity='0.7'>Current Price</Text>
               {!safe ? (
                 <Skeleton w='70px' h='10px' />
               ) : (
-                <Text fontSize='18px'>
+                <Text fontSize={{ lg: '18px', sm: '16px' }}>
                   ${' '}
                   {Number(
                     formatNumber(safe.collateralType.currentPrice.value)
@@ -257,7 +254,7 @@ export default function SafePage({ params }) {
               {!safe ? (
                 <Skeleton w='70px' h='10px' />
               ) : (
-                <Text fontSize='18px'>
+                <Text fontSize={{ lg: '18px', sm: '16px' }}>
                   ${' '}
                   {Number(
                     formatNumber(
@@ -267,7 +264,7 @@ export default function SafePage({ params }) {
                 </Text>
               )}
             </VStack>
-          </Flex>
+          </SimpleGrid>
         </Flex>
       </Flex>
 

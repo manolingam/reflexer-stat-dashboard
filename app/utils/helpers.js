@@ -1,6 +1,6 @@
 import numeral from 'numeral';
 
-export function formatNumberAlphabetical(number) {
+export function formatNumberAlphabetical(number, decimals = 0) {
   const billion = 1e9;
   const million = 1e6;
   const thousand = 1e3;
@@ -8,14 +8,14 @@ export function formatNumberAlphabetical(number) {
   const parsedNumber = parseFloat(number); // Parse the string to a number
 
   if (Math.abs(parsedNumber) >= billion) {
-    return (parsedNumber / billion).toFixed(0) + 'B';
+    return (parsedNumber / billion).toFixed(decimals) + 'B';
   } else if (Math.abs(parsedNumber) >= million) {
-    return (parsedNumber / million).toFixed(0) + 'M';
+    return (parsedNumber / million).toFixed(decimals) + 'M';
   } else if (Math.abs(parsedNumber) >= thousand) {
-    return (parsedNumber / thousand).toFixed(0) + 'K';
+    return (parsedNumber / thousand).toFixed(decimals) + 'K';
   }
 
-  return parsedNumber.toFixed(0);
+  return parsedNumber.toFixed(decimals);
 }
 
 export function getLTVRatio(
