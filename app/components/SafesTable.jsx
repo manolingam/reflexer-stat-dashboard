@@ -30,9 +30,9 @@ import {
   formatNumber,
   formatNumberAlphabetical,
   getAccountString,
-  calculateLiquidationPercentage,
   getLiquidationPrice,
-  getCollateralRatio
+  getCollateralRatio,
+  getLTVRatio
 } from '../utils/helpers';
 import {
   FaAngleDown,
@@ -283,6 +283,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                   </HStack>
                 </Th>
                 <Th textAlign='center'>Liquidation Price</Th>
+                <Th textAlign='center'>LTV</Th>
                 <Th textAlign='center'>
                   <Tooltip label='Saviour contract helping to prevent liquidation'>
                     <HStack>
@@ -417,7 +418,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                         )}{' '}
                         %
                       </Td>
-                      <Td textAlign='center'>
+                      <Td textAlign='left'>
                         $
                         {Number(
                           getLiquidationPrice(
@@ -427,16 +428,17 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                               .liquidationCRatio,
                             systemStates[0].currentRedemptionPrice.value
                           )
-                        ).toLocaleString('en-US')}{' '}
-                        /{' '}
-                        {calculateLiquidationPercentage(
-                          collateralPrice * records.collateral,
-                          raiPrice * records.debt,
-                          records.collateralType.currentPrice.liquidationPrice
+                        ).toLocaleString('en-US')}
+                      </Td>
+                      <Td textAlign='center'>
+                        {getLTVRatio(
+                          records.collateral,
+                          collateralPrice,
+                          records.debt,
+                          raiPrice
                         )}{' '}
                         %
                       </Td>
-
                       <Td textAlign='center'>
                         <Flex alignItems='center' justifyContent='center'>
                           <Text

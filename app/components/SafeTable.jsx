@@ -75,18 +75,18 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                               records.deltaDebt,
                               records.deltaCollateral
                             ) === 'increase'
-                              ? 'green'
+                              ? '#98EECC'
                               : getActivityBool(
                                   records.deltaDebt,
                                   records.deltaCollateral
                                 ) === 'decrease'
-                              ? 'red'
+                              ? '#FEA1A1'
                               : getActivityBool(
                                   records.deltaDebt,
                                   records.deltaCollateral
-                                ) === 'none'
+                                ) === '#FEFF86'
                               ? 'white'
-                              : 'blue'
+                              : '#FEFF86'
                           }
                           fontWeight='bold'
                         >
@@ -114,7 +114,7 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                           </Text>
                         </HStack>
                       </Td>
-                      <Td color='#3ac1b9'>
+                      <Td>
                         <Tooltip
                           label={`${new Intl.NumberFormat('en-US', {
                             style: 'decimal',
