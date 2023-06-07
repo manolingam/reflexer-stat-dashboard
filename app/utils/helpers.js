@@ -124,7 +124,17 @@ export const getLiquidationPrice = (
 };
 
 export const getActivityName = (debt, collateral) => {
-  if (debt != 0) {
+  if (debt != 0 && collateral != 0) {
+    if (Math.sign(debt) == 1) {
+      return Math.sign(collateral) == 1
+        ? 'Mint RAI & Deposit ETH'
+        : 'Mint RAI & Withdraw ETH';
+    } else {
+      return Math.sign(collateral) == 1
+        ? 'Burn RAI & Deposit ETH'
+        : 'Burn RAI & Withdraw ETH';
+    }
+  } else if (debt != 0) {
     return Math.sign(debt) == 1 ? 'Mint RAI' : 'Burn RAI';
   } else if (collateral != 0) {
     return Math.sign(collateral) == 1 ? 'Deposit ETH' : 'Withdraw ETH';
@@ -134,7 +144,9 @@ export const getActivityName = (debt, collateral) => {
 };
 
 export const getActivityBool = (debt, collateral) => {
-  if (debt != 0) {
+  if (debt != 0 && collateral != 0) {
+    return 'switch';
+  } else if (debt != 0) {
     return Math.sign(debt) == 1 ? 'increase' : 'decrease';
   } else if (collateral != 0) {
     return Math.sign(collateral) == 1 ? 'increase' : 'decrease';

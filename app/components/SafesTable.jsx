@@ -14,7 +14,8 @@ import {
   Tooltip,
   Checkbox,
   Spinner,
-  Link as ChakraLink
+  Link as ChakraLink,
+  VStack
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -123,15 +124,24 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
   return (
     <Flex direction='column'>
       <HStack alignItems='center' justifyContent='space-between' mb='1rem'>
-        <Text fontSize={{ lg: '28px', sm: '18px' }}>All Safes</Text>
-        <Checkbox
-          isChecked={notZeroSafes}
-          onChange={() => updateNotZeroFilter()}
-          size='sm'
-          opacity='0.7'
-        >
-          Hide zero collateral safes
-        </Checkbox>
+        <VStack w='100%' alignItems='flex-start'>
+          <Text fontSize={{ lg: '28px', sm: '18px' }}>All Safes</Text>
+          <Checkbox
+            isChecked={notZeroSafes}
+            onChange={() => updateNotZeroFilter()}
+            size='sm'
+            opacity='0.7'
+          >
+            Hide zero collateral safes
+          </Checkbox>
+        </VStack>
+        {totalPages > 0 && (
+          <PageNumbers
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+          />
+        )}
       </HStack>
 
       {!loading && (
@@ -193,7 +203,14 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                 </Th>
                 <Th textAlign='center'>Collateral Ratio</Th>
                 <Th textAlign='center'>Liquidation Price</Th>
-                <Th textAlign='center'>Saviour</Th>
+                <Th textAlign='center'>
+                  <Tooltip label='Saviour contract helping to prevent liquidation'>
+                    <HStack>
+                      <FaInfoCircle />
+                      <Text>Saviour</Text>
+                    </HStack>
+                  </Tooltip>
+                </Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -236,16 +253,33 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
 
                       <Td color='#3ac1b9'>
                         <Tooltip
-                          label={`${formatNumber(
-                            records.debt
-                          )} RAI / $ ${formatNumber(records.debt * raiPrice)}`}
+                          label={` ${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(formatNumber(records.debt))
+                          )} RAI / $ ${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(formatNumber(records.debt * raiPrice))
+                          )}`}
                           placement='right'
                           fontSize='14px'
                         >
                           <HStack>
                             <FaInfoCircle />
                             <Text>
-                              {formatNumberAlphabetical(records.debt)} RAI / $
+                              {new Intl.NumberFormat('en-US', {
+                                style: 'decimal',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              }).format(
+                                Number(formatNumber(records.debt))
+                              )}{' '}
+                              RAI / ~ $
                               {formatNumberAlphabetical(
                                 records.debt * raiPrice
                               )}
@@ -256,10 +290,20 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
 
                       <Td>
                         <Tooltip
-                          label={`${formatNumber(
-                            records.collateral
-                          )} ETH / $ ${formatNumber(
-                            records.collateral * collateralPrice
+                          label={`${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(formatNumber(records.collateral))
+                          )} ETH / $ ${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(
+                              formatNumber(records.collateral * collateralPrice)
+                            )
                           )}`}
                           placement='right'
                           fontSize='14px'
@@ -267,8 +311,14 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                           <HStack>
                             <FaInfoCircle />
                             <Text>
-                              {formatNumberAlphabetical(records.collateral)} ETH
-                              / $
+                              {new Intl.NumberFormat('en-US', {
+                                style: 'decimal',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              }).format(
+                                Number(formatNumber(records.collateral))
+                              )}
+                              ETH / ~ $
                               {formatNumberAlphabetical(
                                 records.collateral * collateralPrice
                               )}
@@ -335,7 +385,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
       )}
 
       {loading && (
-        <Flex h='200px' mx='auto' alignItems='center' justifyContent='center'>
+        <Flex h='500px' mx='auto' alignItems='center' justifyContent='center'>
           <Spinner color='#3ac1b9' />
         </Flex>
       )}

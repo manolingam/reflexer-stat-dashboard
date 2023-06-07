@@ -27,7 +27,8 @@ import {
   FaInfoCircle,
   FaLongArrowAltUp,
   FaLongArrowAltDown,
-  FaArrowsAlt
+  FaArrowsAlt,
+  FaArrowsAltV
 } from 'react-icons/fa';
 
 export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
@@ -68,20 +69,43 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                   return (
                     <Tr key={index} fontSize='14px'>
                       <Td>
-                        <HStack>
+                        <HStack
+                          color={
+                            getActivityBool(
+                              records.deltaDebt,
+                              records.deltaCollateral
+                            ) === 'increase'
+                              ? 'green'
+                              : getActivityBool(
+                                  records.deltaDebt,
+                                  records.deltaCollateral
+                                ) === 'decrease'
+                              ? 'red'
+                              : getActivityBool(
+                                  records.deltaDebt,
+                                  records.deltaCollateral
+                                ) === 'none'
+                              ? 'white'
+                              : 'blue'
+                          }
+                          fontWeight='bold'
+                        >
                           {getActivityBool(
                             records.deltaDebt,
                             records.deltaCollateral
-                          ) === 'increase' ? (
-                            <FaLongArrowAltUp />
-                          ) : getActivityBool(
-                              records.deltaDebt,
-                              records.deltaCollateral
-                            ) === 'decrease' ? (
-                            <FaLongArrowAltDown />
-                          ) : (
-                            <FaArrowsAlt />
-                          )}
+                          ) === 'increase' && <FaLongArrowAltUp />}{' '}
+                          {getActivityBool(
+                            records.deltaDebt,
+                            records.deltaCollateral
+                          ) === 'decrease' && <FaLongArrowAltDown />}{' '}
+                          {getActivityBool(
+                            records.deltaDebt,
+                            records.deltaCollateral
+                          ) === 'switch' && <FaArrowsAltV />}{' '}
+                          {getActivityBool(
+                            records.deltaDebt,
+                            records.deltaCollateral
+                          ) === 'none' && <FaArrowsAlt />}
                           <Text>
                             {getActivityName(
                               records.deltaDebt,
@@ -92,20 +116,35 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                       </Td>
                       <Td color='#3ac1b9'>
                         <Tooltip
-                          label={`${formatNumber(
-                            records.deltaCollateral
-                          )} ETH / ${formatNumber(
-                            records.deltaCollateral * collateralPrice
+                          label={`${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(formatNumber(records.deltaCollateral))
+                          )} ETH / ${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(
+                              formatNumber(
+                                records.deltaCollateral * collateralPrice
+                              )
+                            )
                           )}`}
                         >
                           <HStack>
                             <FaInfoCircle />
                             <Text>
-                              {formatNumberAlphabetical(
-                                records.deltaCollateral,
-                                2
+                              {new Intl.NumberFormat('en-US', {
+                                style: 'decimal',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              }).format(
+                                Number(formatNumber(records.deltaCollateral))
                               )}{' '}
-                              ETH / $
+                              ETH / ~ $
                               {formatNumberAlphabetical(
                                 records.deltaCollateral * collateralPrice,
                                 2
@@ -116,17 +155,31 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                       </Td>
                       <Td>
                         <Tooltip
-                          label={`${formatNumber(
-                            records.deltaDebt
-                          )} RAI / $ ${formatNumber(
-                            records.deltaDebt * debtPrice
+                          label={`${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(formatNumber(records.deltaDebt))
+                          )} RAI / $ ${new Intl.NumberFormat('en-US', {
+                            style: 'decimal',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          }).format(
+                            Number(formatNumber(records.deltaDebt * debtPrice))
                           )}`}
                         >
                           <HStack>
                             <FaInfoCircle />
                             <Text>
-                              {formatNumberAlphabetical(records.deltaDebt, 2)}{' '}
-                              RAI / $
+                              {new Intl.NumberFormat('en-US', {
+                                style: 'decimal',
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              }).format(
+                                Number(formatNumber(records.deltaDebt))
+                              )}{' '}
+                              RAI / ~ $
                               {formatNumberAlphabetical(
                                 records.deltaDebt * debtPrice,
                                 2

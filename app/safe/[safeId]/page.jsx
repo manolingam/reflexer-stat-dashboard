@@ -69,7 +69,7 @@ export default function SafePage({ params }) {
               backgroundClip='text'
               fontWeight='extrabold'
             >
-              # {safe.safeId}
+              Safe # {safe.safeId}
             </Text>
           )}
         </HStack>

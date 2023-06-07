@@ -13,6 +13,8 @@ import { SYSTEMSTATE_QUERY } from './utils/queries';
 import { useQuery } from '@apollo/client';
 import { formatNumber, getCollateralRatio } from './utils/helpers';
 
+import { FaExternalLinkSquareAlt } from 'react-icons/fa';
+
 export default function Home() {
   const { loading, data } = useQuery(SYSTEMSTATE_QUERY);
 
@@ -149,7 +151,8 @@ export default function Home() {
               >
                 {new Intl.NumberFormat('en-US', {
                   style: 'decimal',
-                  minimumFractionDigits: 2
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
                 }).format(Number(formatNumber(collateral)))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
@@ -201,7 +204,13 @@ export default function Home() {
                 fontWeight='extrabold'
               >
                 ${' '}
-                {Number(formatNumber(collateralPrice)).toLocaleString('en-US')}
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }).format(Number(formatNumber(collateralPrice)))}{' '}
+                USD
+                {/* {Number(formatNumber(collateralPrice)).toLocaleString('en-US')} */}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 ETH
@@ -228,7 +237,8 @@ export default function Home() {
                   formatNumber(
                     data.systemStates[0].currentRedemptionPrice.value
                   )
-                ).toLocaleString('en-US')}
+                ).toLocaleString('en-US')}{' '}
+                USD
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Redemption Price
@@ -268,6 +278,7 @@ export default function Home() {
               alignItems='center'
               justifyContent='flex-start'
             >
+              <FaExternalLinkSquareAlt />
               <ChakraLink
                 textDecoration='underline'
                 wordBreak='break-word'
@@ -277,6 +288,7 @@ export default function Home() {
                 fontSize={{ lg: '18px', sm: '14px' }}
                 href='https://stats.reflexer.finance/'
                 isExternal
+                ml='10px'
               >
                 Click for more stats..
               </ChakraLink>
