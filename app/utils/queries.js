@@ -133,6 +133,40 @@ export const ALLSAFES_QUERY_NOT_ZERO = gql`
   }
 `;
 
+export const ALLSAFES_QUERY_NOT_ZERO_CR_SORT = gql`
+  query GetAllSafes {
+    safes(where: { collateral_not: "0", debt_not: "0" }) {
+      id
+      safeId
+      collateral
+      debt
+      owner {
+        address
+      }
+      collateralType {
+        currentPrice {
+          value
+          liquidationPrice
+          collateral {
+            liquidationCRatio
+          }
+        }
+
+        safeCount
+      }
+      saviour {
+        allowed
+      }
+    }
+    systemStates {
+      totalActiveSafeCount
+      currentRedemptionPrice {
+        value
+      }
+    }
+  }
+`;
+
 export const SAFE_QUERY = gql`
   query GetSafe($id: String) {
     safes(where: { safeId: $id }) {

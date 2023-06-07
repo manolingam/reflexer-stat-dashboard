@@ -13,7 +13,7 @@ export const PageNumbers = ({ currentPage, setCurrentPage, totalPages }) => {
       mt='1rem'
     >
       <Button
-        isDisabled={currentPage + 1 <= 1}
+        isDisabled={currentPage <= 1}
         onClick={() => setCurrentPage((currentPage) => currentPage - 1)}
         fontSize='10px'
         padding='10px'
@@ -27,11 +27,11 @@ export const PageNumbers = ({ currentPage, setCurrentPage, totalPages }) => {
       </Button>
       {totalPages > 0 && (
         <Text mx='14px' fontSize='12px' opacity='0.7' textTransform='uppercase'>
-          Page {currentPage + 1} of {totalPages}
+          Page {currentPage} of {totalPages}
         </Text>
       )}
       <Button
-        isDisabled={currentPage + 1 >= totalPages}
+        isDisabled={currentPage >= totalPages}
         onClick={() => setCurrentPage((currentPage) => currentPage + 1)}
         fontSize='10px'
         padding='10px'
