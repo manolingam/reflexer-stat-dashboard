@@ -12,7 +12,8 @@ import {
   TableContainer,
   Spinner,
   HStack,
-  Tooltip
+  Tooltip,
+  Link as ChakraLink
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
@@ -21,14 +22,16 @@ import {
   formatNumber,
   formatNumberAlphabetical,
   getActivityName,
-  getActivityBool
+  getActivityBool,
+  getAccountString
 } from '../utils/helpers';
 import {
   FaInfoCircle,
   FaLongArrowAltUp,
   FaLongArrowAltDown,
   FaArrowsAlt,
-  FaArrowsAltV
+  FaArrowsAltV,
+  FaExternalLinkSquareAlt
 } from 'react-icons/fa';
 
 export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
@@ -61,6 +64,7 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                 <Th>Collateral Change</Th>
                 <Th>Debt Change</Th>
                 <Th textAlign='right'>Timestamp</Th>
+                <Th>Receipt</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -193,6 +197,22 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                           .toLocaleString()
                           .toString()
                           .replaceAll('/', '-')}
+                      </Td>
+                      <Td textAlign='right'>
+                        <HStack color='#0784c3'>
+                          <FaExternalLinkSquareAlt />
+                          <ChakraLink
+                            href={`https://etherscan.io/tx/${records.createdAtTransaction}`}
+                            isExternal
+                            fontSize={{ lg: '14px', sm: '12px' }}
+                            textDecoration='none'
+                            _hover={{
+                              opacity: 0.7
+                            }}
+                          >
+                            {getAccountString(records.createdAtTransaction)}
+                          </ChakraLink>
+                        </HStack>
                       </Td>
                     </Tr>
                   );

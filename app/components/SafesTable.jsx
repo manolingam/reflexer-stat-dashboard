@@ -18,12 +18,11 @@ import {
   VStack
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useQuery } from '@apollo/client';
 import {
   ALLSAFES_QUERY_NOT_ZERO,
-  ALLSAFES_QUERY_WITH_ZERO,
-  ALLSAFES_QUERY_NOT_ZERO_CR_SORT
+  ALLSAFES_QUERY_WITH_ZERO
 } from '../utils/queries';
 import { PageNumbers } from './PageNumbers';
 import {
@@ -43,115 +42,170 @@ import {
 } from 'react-icons/fa';
 import { RxCrossCircled } from 'react-icons/rx';
 
+import { AppContext } from '../context/AppContext';
+
 const RECORDS_PER_PAGE = 50;
 
 export const SafesTable = ({ raiPrice, collateralPrice }) => {
   const router = useRouter();
-  const [safes, setSafes] = useState([]);
-  const [systemStates, setSystemStates] = useState('');
+  const context = useContext(AppContext);
+  const [currentRecords, setCurrentRecords] = useState([]);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [aPage, setAPage] = useState(0);
 
   const [notZeroSafes, setNotZeroSafes] = useState(true);
-
   const [sortBy, setSortBy] = useState({
     type: 'collateral',
     direction: 'desc'
   });
 
-  const {
-    data: safesData,
-    fetchMore,
-    loading
-  } = useQuery(
+  const [loading, setLoading] = useState(true);
+
+  const { fetchMore } = useQuery(
     notZeroSafes ? ALLSAFES_QUERY_NOT_ZERO : ALLSAFES_QUERY_WITH_ZERO,
     {
       variables: {
         first: RECORDS_PER_PAGE,
         skip: (currentPage - 1) * RECORDS_PER_PAGE,
-        orderBy: sortBy.type,
+        orderBy: sortBy.type === 'CR' ? 'collateral' : sortBy.type,
         orderDirection: sortBy.direction
       }
     }
   );
 
-  const { data: safesDataFull } = useQuery(ALLSAFES_QUERY_NOT_ZERO_CR_SORT);
+  const performSorts = () => {
+    let _safes = [];
+    if (sortBy.type === 'CR') {
+      _safes = (notZeroSafes ? context.nonZeroSafes : context.zeroSafes)
+        .map((safe) => {
+          let cr = getCollateralRatio(
+            safe.collateral,
+            safe.debt,
+            safe.collateralType.currentPrice.liquidationPrice,
+            safe.collateralType.currentPrice.collateral.liquidationCRatio
+          );
 
-  useEffect(() => {
-    if (sortBy.type !== 'CR') {
-      fetchMore({
-        variables: {
-          first: RECORDS_PER_PAGE,
-          skip: (currentPage - 1) * RECORDS_PER_PAGE,
-          orderBy: sortBy.type,
-          orderDirection: sortBy.direction
-        }
+          return {
+            ...safe,
+            CR: cr
+          };
+        })
+        .filter((safe) => safe.CR !== '∞');
+
+      _safes.sort((a, b) => {
+        return sortBy.direction === 'asc'
+          ? Number(a.CR) - Number(b.CR)
+          : Number(b.CR) - Number(a.CR);
       });
-    } else {
-      sortByCR();
     }
-  }, [currentPage]);
 
-  useEffect(() => {
-    if (safesData) {
-      let _totalPages = Math.ceil(
-        (notZeroSafes
-          ? Number(safesData.systemStates[0].totalActiveSafeCount)
-          : Number(safesData.safes[0].collateralType.safeCount)) /
-          RECORDS_PER_PAGE
-      );
-      setTotalPages(_totalPages);
-      setSafes(safesData.safes);
-      setSystemStates(safesData.systemStates);
-    }
-  }, [safesData]);
+    if (sortBy.type === 'collateral') {
+      _safes = notZeroSafes ? context.nonZeroSafes : context.zeroSafes;
 
-  useEffect(() => {
-    if (sortBy.type !== 'CR') {
-      fetchMore({
-        variables: {
-          first: RECORDS_PER_PAGE,
-          skip: (currentPage - 1) * RECORDS_PER_PAGE
-        }
+      _safes.sort((a, b) => {
+        return sortBy.direction === 'asc'
+          ? Number(a.collateral) - Number(b.collateral)
+          : Number(b.collateral) - Number(a.collateral);
       });
-    } else {
-      sortByCR();
     }
-  }, [sortBy, notZeroSafes]);
 
-  const sortByCR = async () => {
-    let safes = safesDataFull.safes
-      .map((safe) => {
-        let cr = getCollateralRatio(
-          safe.collateral,
-          safe.debt,
-          safe.collateralType.currentPrice.liquidationPrice,
-          safe.collateralType.currentPrice.collateral.liquidationCRatio
-        );
+    if (sortBy.type === 'debt') {
+      _safes = notZeroSafes ? context.nonZeroSafes : context.zeroSafes;
 
-        return {
-          ...safe,
-          CR: cr
-        };
-      })
-      .filter((safe) => safe.CR !== '∞');
+      _safes.sort((a, b) => {
+        return sortBy.direction === 'asc'
+          ? Number(a.debt) - Number(b.debt)
+          : Number(b.debt) - Number(a.debt);
+      });
+    }
 
-    safes.sort((a, b) => {
-      return sortBy.direction === 'asc'
-        ? Number(a.CR) - Number(b.CR)
-        : Number(b.CR) - Number(a.CR);
-    });
-
-    let _totalPages = Math.ceil(100 / RECORDS_PER_PAGE);
-    let indexOfLastRecord = currentPage * RECORDS_PER_PAGE;
-    let indexOfFirstRecord = indexOfLastRecord - RECORDS_PER_PAGE;
-    let currentRecords = safes.slice(indexOfFirstRecord, indexOfLastRecord);
-
+    let _totalPages = Math.ceil(_safes.length / RECORDS_PER_PAGE);
     setTotalPages(_totalPages);
-    setSafes(currentRecords);
-    setSystemStates(safesDataFull.systemStates);
+
+    cropRecords(_safes);
+    setLoading(false);
   };
+
+  const loadMore = async (_first, _skip) => {
+    fetchMore({
+      variables: {
+        first: _first,
+        skip: _skip,
+        orderBy: sortBy.type === 'CR' ? 'collateral' : sortBy.type,
+        orderDirection: sortBy.direction
+      },
+      updateQuery: (prevResult, { fetchMoreResult }) => {
+        if (fetchMoreResult && fetchMoreResult.safes.length > 0) {
+          if (notZeroSafes) {
+            context.setNonZeroSafes([
+              ...context.nonZeroSafes,
+              ...fetchMoreResult.safes
+            ]);
+          } else {
+            context.setZeroSafes([
+              ...context.zeroSafes,
+              ...fetchMoreResult.safes
+            ]);
+          }
+          setAPage(aPage + 1);
+        } else {
+          if (!notZeroSafes) {
+            context.setZeroSafesStored(true);
+          } else {
+            context.setNonZeroSafesStored(true);
+          }
+          context.setSystemStates(fetchMoreResult.systemStates);
+          performSorts();
+        }
+      }
+    });
+  };
+
+  const paginate = (_safes, _pageNumber) => {
+    _pageNumber ? setCurrentPage(_pageNumber) : null;
+    const indexOfLastRecord = currentPage * RECORDS_PER_PAGE;
+    const indexOfFirstRecord = indexOfLastRecord - RECORDS_PER_PAGE;
+    const currentRecords = _safes.slice(indexOfFirstRecord, indexOfLastRecord);
+    setCurrentRecords(currentRecords);
+  };
+
+  const cropRecords = (_safes, _page) => {
+    setTotalPages(Math.ceil(_safes.length / RECORDS_PER_PAGE));
+    paginate(_safes, _page);
+  };
+
+  useEffect(() => {
+    if (!context.zeroSafesStored || !context.nonZeroSafesStored) {
+      loadMore(100, aPage * 100);
+    }
+  }, [aPage]);
+
+  useEffect(() => {
+    setLoading(true);
+    setCurrentRecords([]);
+    performSorts();
+  }, [sortBy]);
+
+  useEffect(() => {
+    setLoading(true);
+    setCurrentRecords([]);
+    if (!notZeroSafes && context.zeroSafesStored) {
+      performSorts();
+    } else if (notZeroSafes && context.nonZeroSafesStored) {
+      performSorts();
+    } else {
+      setAPage(0);
+    }
+  }, [notZeroSafes]);
+
+  useEffect(() => {
+    cropRecords(
+      notZeroSafes ? context.nonZeroSafes : context.zeroSafes,
+      currentPage
+    );
+  }, [currentPage]);
 
   const updateSortBy = (type) => {
     setSortBy((prevState) => ({
@@ -159,7 +213,6 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
       type: type,
       direction: prevState.direction === 'desc' ? 'asc' : 'desc'
     }));
-    setCurrentPage(1);
   };
 
   const updateNotZeroFilter = () => {
@@ -199,7 +252,9 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                 <Th textAlign='left'>Owner</Th>
                 <Th
                   textAlign='right'
-                  onClick={() => updateSortBy('debt')}
+                  onClick={() => {
+                    updateSortBy('debt');
+                  }}
                   cursor='pointer'
                   _hover={{
                     opacity: 0.7
@@ -250,7 +305,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                 <Th
                   textAlign='center'
                   onClick={() => {
-                    if (safesDataFull) updateSortBy('CR');
+                    updateSortBy('CR');
                   }}
                   cursor='pointer'
                   _hover={{
@@ -258,28 +313,22 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                   }}
                 >
                   <HStack justifyContent='flex-start'>
-                    <Tooltip
-                      label='Sort by CR is limited to 100 non zero safes'
-                      fontSize='x-small'
-                    >
-                      <HStack>
-                        <FaInfoCircle />
-                        <Text>Collateral Ratio</Text>
-                        <Flex direction='column'>
-                          {sortBy.type === 'CR' ? (
-                            sortBy.direction === 'desc' ? (
-                              <FaAngleUp />
-                            ) : (
-                              <FaAngleDown />
-                            )
+                    <HStack>
+                      <Text>Collateral Ratio</Text>
+                      <Flex direction='column'>
+                        {sortBy.type === 'CR' ? (
+                          sortBy.direction === 'desc' ? (
+                            <FaAngleUp />
                           ) : (
-                            <>
-                              <FaAngleUp /> <FaAngleDown />
-                            </>
-                          )}
-                        </Flex>
-                      </HStack>
-                    </Tooltip>
+                            <FaAngleDown />
+                          )
+                        ) : (
+                          <>
+                            <FaAngleUp /> <FaAngleDown />
+                          </>
+                        )}
+                      </Flex>
+                    </HStack>
                   </HStack>
                 </Th>
                 <Th textAlign='center'>Liquidation Price</Th>
@@ -295,8 +344,8 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
               </Tr>
             </Thead>
             <Tbody>
-              {safes.length > 0 &&
-                safes.map((records, index) => {
+              {currentRecords.length > 0 &&
+                currentRecords.map((records, index) => {
                   return (
                     <Tr key={index} fontSize='14px'>
                       <Td>
@@ -426,7 +475,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                             records.debt,
                             records.collateralType.currentPrice.collateral
                               .liquidationCRatio,
-                            systemStates[0].currentRedemptionPrice.value
+                            context.systemStates[0].currentRedemptionPrice.value
                           )
                         ).toLocaleString('en-US')}
                       </Td>
@@ -466,8 +515,17 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
       )}
 
       {loading && (
-        <Flex h='500px' mx='auto' alignItems='center' justifyContent='center'>
-          <Spinner color='#3ac1b9' />
+        <Flex
+          flexDirection='column'
+          h='500px'
+          mx='auto'
+          alignItems='center'
+          justifyContent='center'
+        >
+          <Spinner color='#3ac1b9' mb='1rem' />
+          <Text fontSize='xs'>
+            Data is loaded only upon start up. Please wait.
+          </Text>
         </Flex>
       )}
 

@@ -9,33 +9,37 @@ import { Flex, Box } from '@chakra-ui/react';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 
+import AppContextProvider from './context/AppContext';
+
 const poppins = Poppins({ subsets: ['latin'], weight: '500' });
 
 export default function RootLayout({ children }) {
   return (
     <html lang='en'>
       <body className={poppins.className}>
-        <ApolloProvider client={client}>
-          <Providers>
-            <Box bg='black'>
-              <Flex
-                direction='column'
-                justifyContent='space-between'
-                maxW='80rem'
-                minH='100vh'
-                mx='auto'
-                pt='2rem'
-                px={{ lg: '4rem', sm: '2rem' }}
-                bg='black'
-                color='white'
-              >
-                <Header />
-                {children}
-                <Footer />
-              </Flex>
-            </Box>
-          </Providers>
-        </ApolloProvider>
+        <AppContextProvider>
+          <ApolloProvider client={client}>
+            <Providers>
+              <Box bg='black'>
+                <Flex
+                  direction='column'
+                  justifyContent='space-between'
+                  maxW='80rem'
+                  minH='100vh'
+                  mx='auto'
+                  pt='2rem'
+                  px={{ lg: '4rem', sm: '2rem' }}
+                  bg='black'
+                  color='white'
+                >
+                  <Header />
+                  {children}
+                  <Footer />
+                </Flex>
+              </Box>
+            </Providers>
+          </ApolloProvider>
+        </AppContextProvider>
       </body>
     </html>
   );
