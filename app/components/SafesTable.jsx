@@ -141,7 +141,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
       },
       updateQuery: (prevResult, { fetchMoreResult }) => {
         if (fetchMoreResult && fetchMoreResult.safes.length > 0) {
-          if (notZeroSafes) {
+          if (notZeroSafes && !context.nonZeroSafesStored) {
             context.setNonZeroSafes([
               ...context.nonZeroSafes,
               ...fetchMoreResult.safes
@@ -151,7 +151,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                 fetchMoreResult.systemStates[0].totalActiveSafeCount) *
                 100
             );
-          } else {
+          } else if (!notZeroSafes && !context.zeroSafesStored) {
             context.setZeroSafes([
               ...context.zeroSafes,
               ...fetchMoreResult.safes
