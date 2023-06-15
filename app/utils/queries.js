@@ -201,6 +201,7 @@ export const SAFE_ACTIVITY_QUERY = gql`
         deltaCollateral
         createdAt
         createdAtTransaction
+        accumulatedRate
       }
     }
   }
