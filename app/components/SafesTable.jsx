@@ -13,9 +13,10 @@ import {
   HStack,
   Tooltip,
   Checkbox,
-  Spinner,
+  CircularProgressLabel,
   Link as ChakraLink,
-  VStack
+  VStack,
+  CircularProgress
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useContext } from 'react';
@@ -54,6 +55,8 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [aPage, setAPage] = useState(0);
+
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const [notZeroSafes, setNotZeroSafes] = useState(true);
   const [sortBy, setSortBy] = useState({
@@ -143,12 +146,23 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
               ...context.nonZeroSafes,
               ...fetchMoreResult.safes
             ]);
+            setProgressPercent(
+              ((aPage * 100) /
+                fetchMoreResult.systemStates[0].totalActiveSafeCount) *
+                100
+            );
           } else {
             context.setZeroSafes([
               ...context.zeroSafes,
               ...fetchMoreResult.safes
             ]);
+            setProgressPercent(
+              ((aPage * 100) /
+                fetchMoreResult.safes[0].collateralType.safeCount) *
+                100
+            );
           }
+
           setAPage(aPage + 1);
         } else {
           if (!notZeroSafes) {
@@ -522,7 +536,17 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
           alignItems='center'
           justifyContent='center'
         >
-          <Spinner color='#3ac1b9' mb='1rem' />
+          <CircularProgress
+            value={progressPercent}
+            size='50px'
+            color='#3ac1b9'
+            thickness='4px'
+            mb='1rem'
+          >
+            <CircularProgressLabel>
+              {Math.round(progressPercent)} %
+            </CircularProgressLabel>
+          </CircularProgress>
           <Text fontSize='xs'>
             Data is loaded only upon start up. Please wait.
           </Text>
