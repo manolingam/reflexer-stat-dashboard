@@ -232,13 +232,19 @@ export default function SafePage({ params }) {
                   backgroundClip='text'
                   fontWeight='extrabold'
                 >
-                  {getCollateralRatio(
-                    safe.collateral,
-                    safe.debt,
-                    safe.collateralType.currentPrice.liquidationPrice,
-                    safe.collateralType.currentPrice.collateral
-                      .liquidationCRatio
-                  )}
+                  {new Intl.NumberFormat('en-US', {
+                    style: 'decimal',
+                    maximumFractionDigits: 2,
+                    minimumFractionDigits: 2
+                  }).format(
+                    Number(
+                      (safe.collateral *
+                        safe.collateralType.currentPrice.value) /
+                        (safe.debt *
+                          safe.collateralType.accumulatedRate *
+                          safeData.systemStates[0].currentRedemptionPrice.value)
+                    ) * 100
+                  )}{' '}
                   %
                 </Text>
               )}

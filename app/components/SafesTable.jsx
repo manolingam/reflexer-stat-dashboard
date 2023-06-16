@@ -349,16 +349,16 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                     </HStack>
                   </HStack>
                 </Th>
-                <Th textAlign='center'>Liquidation Price</Th>
+                <Th textAlign='left'>Liquidation</Th>
                 <Th textAlign='center'>LTV</Th>
-                <Th textAlign='center'>
+                {/* <Th textAlign='center'>
                   <Tooltip label='Saviour contract helping to prevent liquidation'>
                     <HStack>
                       <FaInfoCircle />
                       <Text>Saviour</Text>
                     </HStack>
                   </Tooltip>
-                </Th>
+                </Th> */}
               </Tr>
             </Thead>
             <Tbody>
@@ -367,18 +367,41 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                   return (
                     <Tr key={index} fontSize='14px'>
                       <Td>
-                        <HStack
-                          bg='#3ac1b9'
-                          color='black'
-                          borderRadius='5px'
-                          p='5px'
-                          fontWeight='bold'
-                          _hover={{ opacity: 0.7 }}
-                          cursor='pointer'
-                          onClick={() => router.push(`/safe/${records.safeId}`)}
-                        >
-                          <FaExternalLinkSquareAlt />
-                          <Text>{records.safeId}</Text>
+                        <HStack>
+                          <Tooltip label='Saviour contract helping to prevent liquidation'>
+                            <Text
+                              mr='10px'
+                              textAlign='center'
+                              color={
+                                records.saviour && records.saviour.allowed
+                                  ? 'green'
+                                  : 'red'
+                              }
+                            >
+                              {records.saviour && records.saviour.allowed ? (
+                                <FaCheckCircle />
+                              ) : (
+                                <RxCrossCircled />
+                              )}
+                            </Text>
+                          </Tooltip>
+
+                          <HStack
+                            bg='#3ac1b9'
+                            color='black'
+                            w='70px'
+                            borderRadius='5px'
+                            p='5px'
+                            fontWeight='bold'
+                            _hover={{ opacity: 0.7 }}
+                            cursor='pointer'
+                            onClick={() =>
+                              router.push(`/safe/${records.safeId}`)
+                            }
+                          >
+                            <FaExternalLinkSquareAlt />
+                            <Text>{records.safeId}</Text>
+                          </HStack>
                         </HStack>
                       </Td>
                       <Td>
@@ -507,7 +530,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                         )}{' '}
                         %
                       </Td>
-                      <Td textAlign='center'>
+                      {/* <Td textAlign='center'>
                         <Flex alignItems='center' justifyContent='center'>
                           <Text
                             textAlign='center'
@@ -524,7 +547,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                             )}
                           </Text>
                         </Flex>
-                      </Td>
+                      </Td> */}
                     </Tr>
                   );
                 })}

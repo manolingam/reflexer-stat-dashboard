@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
                 <Flex
                   direction='column'
                   justifyContent='space-between'
-                  maxW='80rem'
+                  maxW='90rem'
                   minH='100vh'
                   mx='auto'
                   pt='2rem'

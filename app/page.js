@@ -260,13 +260,16 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {Number(
-                  data.systemStates[0].currentRedemptionPrice.redemptionRate
-                ).toFixed(2)}{' '}
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 3
+                }).format(
+                  Number((data.redemptionRates[0].annualizedRate - 1) * 100)
+                )}{' '}
                 %
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                Redemption Rate
+                Annual Redemption Rate
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 RAI

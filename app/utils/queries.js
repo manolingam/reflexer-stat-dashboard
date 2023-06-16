@@ -25,6 +25,9 @@ export const SYSTEMSTATE_QUERY = gql`
         value
       }
     }
+    redemptionRates(first: 1, orderBy: createdAt, orderDirection: desc) {
+      annualizedRate
+    }
     safes(first: 1) {
       collateralType {
         safeCount
