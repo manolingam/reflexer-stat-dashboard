@@ -30,8 +30,6 @@ export default function SafePage({ params }) {
     variables: { id: params.safeId }
   });
 
-  console.log(params.safeId);
-
   const [raiPrice, setRaiPrice] = useState(1);
   const [safe, setSafe] = useState(null);
 
@@ -40,7 +38,7 @@ export default function SafePage({ params }) {
   useEffect(() => {
     if (safeData) {
       setSafe(safeData.safes[0]);
-      setRaiPrice(safeData.dailyStats[0].marketPriceUsd);
+      setRaiPrice(safeData.dailyStats[0].redemptionPrice.value);
     }
   }, [safeData]);
 
@@ -268,10 +266,10 @@ export default function SafePage({ params }) {
                   {Number(
                     getLiquidationPrice(
                       safe.collateral,
-                      safe.debt,
+                      safe.debt * safe.collateralType.accumulatedRate,
                       safe.collateralType.currentPrice.collateral
                         .liquidationCRatio,
-                      raiPrice
+                      safeData.systemStates[0].currentRedemptionPrice.value
                     )
                   ).toLocaleString('en-US')}
                 </Text>

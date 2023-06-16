@@ -486,7 +486,8 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                         {Number(
                           getLiquidationPrice(
                             records.collateral,
-                            records.debt,
+                            records.debt *
+                              records.collateralType.accumulatedRate,
                             records.collateralType.currentPrice.collateral
                               .liquidationCRatio,
                             context.systemStates[0].currentRedemptionPrice.value
