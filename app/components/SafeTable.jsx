@@ -164,7 +164,11 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           }).format(
-                            Number(formatNumber(records.deltaDebt))
+                            Number(
+                              formatNumber(
+                                records.deltaDebt * records.accumulatedRate
+                              )
+                            )
                           )} RAI / $ ${new Intl.NumberFormat('en-US', {
                             style: 'decimal',
                             minimumFractionDigits: 2,
