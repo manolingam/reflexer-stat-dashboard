@@ -20,7 +20,8 @@ import {
   getAccountString,
   formatNumber,
   getLTVRatio,
-  getCollateralRatio
+  getCollateralRatio,
+  getLiquidationPrice
 } from '@/app/utils/helpers';
 import { useState, useEffect } from 'react';
 
@@ -28,6 +29,8 @@ export default function SafePage({ params }) {
   const { data: safeData, error } = useQuery(SAFE_QUERY, {
     variables: { id: params.safeId }
   });
+
+  console.log(params.safeId);
 
   const [raiPrice, setRaiPrice] = useState(1);
   const [safe, setSafe] = useState(null);
@@ -176,7 +179,13 @@ export default function SafePage({ params }) {
                       {new Intl.NumberFormat('en-US', {
                         style: 'decimal',
                         minimumFractionDigits: 2
-                      }).format(Number(formatNumber(safe.debt)))}
+                      }).format(
+                        Number(
+                          formatNumber(
+                            safe.debt * safe.collateralType.accumulatedRate
+                          )
+                        )
+                      )}
                     </Text>
                     <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                       RAI
@@ -257,8 +266,12 @@ export default function SafePage({ params }) {
                 <Text fontSize={{ lg: '18px', sm: '16px' }}>
                   ${' '}
                   {Number(
-                    formatNumber(
-                      safe.collateralType.currentPrice.liquidationPrice
+                    getLiquidationPrice(
+                      safe.collateral,
+                      safe.debt,
+                      safe.collateralType.currentPrice.collateral
+                        .liquidationCRatio,
+                      raiPrice
                     )
                   ).toLocaleString('en-US')}
                 </Text>

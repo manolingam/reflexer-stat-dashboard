@@ -178,6 +178,7 @@ export const SAFE_QUERY = gql`
         address
       }
       collateralType {
+        accumulatedRate
         currentPrice {
           value
           liquidationPrice
