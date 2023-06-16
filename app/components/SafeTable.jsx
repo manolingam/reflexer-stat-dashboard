@@ -51,9 +51,12 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
 
   return (
     <Flex direction='column'>
-      <Text fontSize={{ lg: '28px', sm: '22px' }} mb='1rem'>
-        Activities
-      </Text>
+      <HStack mb='1rem' alignItems='baseline'>
+        <Text fontSize={{ lg: '28px', sm: '22px' }}>Activities</Text>
+        <Text fontSize={{ lg: '20px', sm: '18px' }} opacity='0.7'>
+          (~{activity && activity.length})
+        </Text>
+      </HStack>
 
       {!loading && (
         <TableContainer>
