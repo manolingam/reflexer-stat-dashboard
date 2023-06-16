@@ -127,7 +127,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
     let _totalPages = Math.ceil(_safes.length / RECORDS_PER_PAGE);
     setTotalPages(_totalPages);
 
-    cropRecords(_safes);
+    cropRecords(_safes, currentPage);
     setLoading(false);
   };
 
@@ -215,10 +215,14 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
   }, [notZeroSafes]);
 
   useEffect(() => {
-    cropRecords(
-      notZeroSafes ? context.nonZeroSafes : context.zeroSafes,
-      currentPage
-    );
+    if (sortBy.type === 'CR') {
+      performSorts();
+    } else {
+      cropRecords(
+        notZeroSafes ? context.nonZeroSafes : context.zeroSafes,
+        currentPage
+      );
+    }
   }, [currentPage]);
 
   const updateSortBy = (type) => {
