@@ -162,7 +162,6 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                 100
             );
           }
-
           setAPage(aPage + 1);
         } else {
           if (!notZeroSafes) {
@@ -200,6 +199,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
     setLoading(true);
     setCurrentRecords([]);
     performSorts();
+    setCurrentPage(1);
   }, [sortBy]);
 
   useEffect(() => {
