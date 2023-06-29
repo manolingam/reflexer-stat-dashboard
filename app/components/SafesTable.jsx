@@ -368,7 +368,13 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                     <Tr key={index} fontSize='14px'>
                       <Td>
                         <HStack>
-                          <Tooltip label='Saviour contract helping to prevent liquidation'>
+                          <Tooltip
+                            label={
+                              records.saviour && records.saviour.allowed
+                                ? 'Saviour Protection Enabled'
+                                : 'Saviour Protection Disabled'
+                            }
+                          >
                             <Text
                               mr='10px'
                               textAlign='center'

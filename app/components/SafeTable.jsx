@@ -122,86 +122,97 @@ export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
                         </HStack>
                       </Td>
                       <Td>
-                        <Tooltip
-                          label={`${new Intl.NumberFormat('en-US', {
-                            style: 'decimal',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }).format(
-                            Number(formatNumber(records.deltaCollateral))
-                          )} ETH / ${new Intl.NumberFormat('en-US', {
-                            style: 'decimal',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }).format(
-                            Number(
-                              formatNumber(
-                                records.deltaCollateral * collateralPrice
+                        {records.deltaCollateral == 0 ? (
+                          <Text> -- </Text>
+                        ) : (
+                          <Tooltip
+                            label={`${new Intl.NumberFormat('en-US', {
+                              style: 'decimal',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            }).format(
+                              Number(formatNumber(records.deltaCollateral))
+                            )} ETH / ${new Intl.NumberFormat('en-US', {
+                              style: 'decimal',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            }).format(
+                              Number(
+                                formatNumber(
+                                  records.deltaCollateral * collateralPrice
+                                )
                               )
-                            )
-                          )}`}
-                        >
-                          <HStack>
-                            <FaInfoCircle />
-                            <Text>
-                              {new Intl.NumberFormat('en-US', {
-                                style: 'decimal',
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              }).format(
-                                Number(formatNumber(records.deltaCollateral))
-                              )}{' '}
-                              ETH / ~ $
-                              {formatNumberAlphabetical(
-                                records.deltaCollateral * collateralPrice,
-                                2
-                              )}
-                            </Text>
-                          </HStack>
-                        </Tooltip>
+                            )}`}
+                          >
+                            <HStack>
+                              <FaInfoCircle />
+                              <Text>
+                                {new Intl.NumberFormat('en-US', {
+                                  style: 'decimal',
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                }).format(
+                                  Number(formatNumber(records.deltaCollateral))
+                                )}{' '}
+                                ETH / ~ $
+                                {formatNumberAlphabetical(
+                                  records.deltaCollateral * collateralPrice,
+                                  2
+                                )}
+                              </Text>
+                            </HStack>
+                          </Tooltip>
+                        )}
                       </Td>
                       <Td>
-                        <Tooltip
-                          label={`${new Intl.NumberFormat('en-US', {
-                            style: 'decimal',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }).format(
-                            Number(
-                              formatNumber(
-                                records.deltaDebt * records.accumulatedRate
-                              )
-                            )
-                          )} RAI / $ ${new Intl.NumberFormat('en-US', {
-                            style: 'decimal',
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                          }).format(
-                            Number(formatNumber(records.deltaDebt * debtPrice))
-                          )}`}
-                        >
-                          <HStack>
-                            <FaInfoCircle />
-                            <Text>
-                              {new Intl.NumberFormat('en-US', {
-                                style: 'decimal',
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                              }).format(
-                                Number(
-                                  formatNumber(
-                                    records.deltaDebt * records.accumulatedRate
-                                  )
+                        {records.deltaDebt == 0 ? (
+                          <Text> -- </Text>
+                        ) : (
+                          <Tooltip
+                            label={`${new Intl.NumberFormat('en-US', {
+                              style: 'decimal',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            }).format(
+                              Number(
+                                formatNumber(
+                                  records.deltaDebt * records.accumulatedRate
                                 )
-                              )}{' '}
-                              RAI / ~ $
-                              {formatNumberAlphabetical(
-                                records.deltaDebt * debtPrice,
-                                2
-                              )}
-                            </Text>
-                          </HStack>
-                        </Tooltip>
+                              )
+                            )} RAI / $ ${new Intl.NumberFormat('en-US', {
+                              style: 'decimal',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            }).format(
+                              Number(
+                                formatNumber(records.deltaDebt * debtPrice)
+                              )
+                            )}`}
+                          >
+                            <HStack>
+                              <FaInfoCircle />
+                              <Text>
+                                {new Intl.NumberFormat('en-US', {
+                                  style: 'decimal',
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                }).format(
+                                  Number(
+                                    formatNumber(
+                                      records.deltaDebt *
+                                        records.accumulatedRate
+                                    )
+                                  )
+                                )}{' '}
+                                RAI / ~ $
+                                {formatNumberAlphabetical(
+                                  records.deltaDebt * debtPrice,
+                                  2
+                                )}
+                              </Text>
+                            </HStack>
+                          </Tooltip>
+                        )}
                       </Td>
                       <Td textAlign='right'>
                         {new Date(Number(records.createdAt) * 1000)

@@ -88,11 +88,11 @@ export default function Home() {
                 }).format(Number(data.systemStates[0].safeCount))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                Safes
+                Total Safes
               </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Total
-              </Text>
+              </Text> */}
             </Flex>
             <Flex direction='column' alignItems='left' justifyContent='center'>
               <Text
@@ -107,88 +107,9 @@ export default function Home() {
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Active Safes
               </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Total
-              </Text>
-            </Flex>
-            <Flex
-              direction='column'
-              mr={{ lg: '2rem', sm: 0 }}
-              alignItems='left'
-              justifyContent='center'
-            >
-              <Text
-                fontSize={{ lg: '28px', sm: '18px' }}
-                mb='.5rem'
-                background='linear-gradient(to right, #41c1d0, #1a6c51)'
-                backgroundClip='text'
-                fontWeight='extrabold'
-              >
-                {new Intl.NumberFormat('en-US', {
-                  style: 'decimal',
-                  minimumFractionDigits: 0
-                }).format(Number(formatNumber(raiDebt, 0, true)))}
-              </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                RAI
-              </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Debt
-              </Text>
-            </Flex>
-            <Flex
-              direction='column'
-              mr={{ lg: '2rem', sm: 0 }}
-              alignItems='left'
-              justifyContent='center'
-            >
-              <Text
-                fontSize={{ lg: '28px', sm: '18px' }}
-                mb='.5rem'
-                background='linear-gradient(to right, #41c1d0, #1a6c51)'
-                backgroundClip='text'
-                fontWeight='extrabold'
-              >
-                {new Intl.NumberFormat('en-US', {
-                  style: 'decimal',
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                }).format(Number(formatNumber(collateral)))}
-              </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                ETH
-              </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Collateral
-              </Text>
-            </Flex>
-            <Flex
-              direction='column'
-              mr={{ lg: '2rem', sm: 0 }}
-              alignItems='left'
-              justifyContent='center'
-            >
-              <Text
-                fontSize={{ lg: '28px', sm: '18px' }}
-                mb='.5rem'
-                background='linear-gradient(to right, #41c1d0, #1a6c51)'
-                backgroundClip='text'
-                fontWeight='extrabold'
-              >
-                {getCollateralRatio(
-                  collateral,
-                  raiDebt,
-                  liquidationPrice,
-                  liquidationCRatio
-                )}
-                %
-              </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                CR
-              </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Collateral Ratio
-              </Text>
+              </Text> */}
             </Flex>
             <Flex
               direction='column'
@@ -213,12 +134,93 @@ export default function Home() {
                 {/* {Number(formatNumber(collateralPrice)).toLocaleString('en-US')} */}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                ETH
+                ETH Price
               </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 Price
-              </Text>
+              </Text> */}
             </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                }).format(Number(formatNumber(collateral)))}
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                ETH Collateral
+              </Text>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                Collateral
+              </Text> */}
+            </Flex>
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                {new Intl.NumberFormat('en-US', {
+                  style: 'decimal',
+                  minimumFractionDigits: 0
+                }).format(Number(formatNumber(raiDebt, 0, true)))}
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                Minted RAI Debt
+              </Text>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                Debt
+              </Text> */}
+            </Flex>
+
+            <Flex
+              direction='column'
+              mr={{ lg: '2rem', sm: 0 }}
+              alignItems='left'
+              justifyContent='center'
+            >
+              <Text
+                fontSize={{ lg: '28px', sm: '18px' }}
+                mb='.5rem'
+                background='linear-gradient(to right, #41c1d0, #1a6c51)'
+                backgroundClip='text'
+                fontWeight='extrabold'
+              >
+                {getCollateralRatio(
+                  collateral,
+                  raiDebt,
+                  liquidationPrice,
+                  liquidationCRatio
+                )}
+                %
+              </Text>
+              <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
+                Collateral Ratio
+              </Text>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+                Collateral Ratio
+              </Text> */}
+            </Flex>
+
             <Flex
               direction='column'
               mr={{ lg: '2rem', sm: 0 }}
@@ -241,11 +243,11 @@ export default function Home() {
                 USD
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                Redemption Price
+                RAI Redemption Price
               </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 RAI
-              </Text>
+              </Text> */}
             </Flex>
             <Flex
               direction='column'
@@ -269,11 +271,11 @@ export default function Home() {
                 %
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
-                Annual Redemption Rate
+                RAI Redemption Rate APY
               </Text>
-              <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
+              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
                 RAI
-              </Text>
+              </Text> */}
             </Flex>
             <Flex
               direction='row'
