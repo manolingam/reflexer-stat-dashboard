@@ -7,7 +7,6 @@ export const SYSTEMSTATE_QUERY = gql`
       globalDebt
       totalActiveSafeCount
       currentRedemptionPrice {
-        redemptionRate
         value
       }
     }
@@ -21,6 +20,12 @@ export const SYSTEMSTATE_QUERY = gql`
     }
     dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
       marketPriceUsd
+      redemptionPrice {
+        value
+      }
+    }
+    redemptionRates(first: 1, orderBy: createdAt, orderDirection: desc) {
+      annualizedRate
     }
     safes(first: 1) {
       collateralType {
@@ -32,14 +37,6 @@ export const SYSTEMSTATE_QUERY = gql`
           liquidationPrice
         }
       }
-    }
-  }
-`;
-
-export const RAIPRICE_QUERY = gql`
-  query GetRaiPrice {
-    dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
-      marketPriceUsd
     }
   }
 `;
@@ -65,6 +62,7 @@ export const ALLSAFES_QUERY_WITH_ZERO = gql`
         address
       }
       collateralType {
+        accumulatedRate
         currentPrice {
           value
           liquidationPrice
@@ -72,17 +70,10 @@ export const ALLSAFES_QUERY_WITH_ZERO = gql`
             liquidationCRatio
           }
         }
-
         safeCount
       }
       saviour {
         allowed
-      }
-    }
-    systemStates {
-      totalActiveSafeCount
-      currentRedemptionPrice {
-        value
       }
     }
   }
@@ -110,6 +101,7 @@ export const ALLSAFES_QUERY_NOT_ZERO = gql`
         address
       }
       collateralType {
+        accumulatedRate
         currentPrice {
           value
           liquidationPrice
@@ -117,51 +109,10 @@ export const ALLSAFES_QUERY_NOT_ZERO = gql`
             liquidationCRatio
           }
         }
-
         safeCount
       }
       saviour {
         allowed
-      }
-    }
-    systemStates {
-      totalActiveSafeCount
-      currentRedemptionPrice {
-        value
-      }
-    }
-  }
-`;
-
-export const ALLSAFES_QUERY_NOT_ZERO_CR_SORT = gql`
-  query GetAllSafes {
-    safes(where: { collateral_not: "0", debt_not: "0" }) {
-      id
-      safeId
-      collateral
-      debt
-      owner {
-        address
-      }
-      collateralType {
-        currentPrice {
-          value
-          liquidationPrice
-          collateral {
-            liquidationCRatio
-          }
-        }
-
-        safeCount
-      }
-      saviour {
-        allowed
-      }
-    }
-    systemStates {
-      totalActiveSafeCount
-      currentRedemptionPrice {
-        value
       }
     }
   }
@@ -178,6 +129,7 @@ export const SAFE_QUERY = gql`
         address
       }
       collateralType {
+        accumulatedRate
         currentPrice {
           value
           liquidationPrice
@@ -188,7 +140,9 @@ export const SAFE_QUERY = gql`
       }
     }
     dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
-      marketPriceUsd
+      redemptionPrice {
+        value
+      }
     }
   }
 `;
@@ -200,6 +154,8 @@ export const SAFE_ACTIVITY_QUERY = gql`
         deltaDebt
         deltaCollateral
         createdAt
+        createdAtTransaction
+        accumulatedRate
       }
     }
   }

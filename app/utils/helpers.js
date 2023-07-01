@@ -82,27 +82,6 @@ export const getCollateralRatio = (
   return formatNumber(value.value().toString(), 2, true);
 };
 
-export function calculateLiquidationPercentage(
-  collateralPrice,
-  debtValue,
-  liquidationPrice
-) {
-  // Check if collateral price is below liquidation price
-  if (collateralPrice < liquidationPrice) {
-    // Calculate the liquidation percentage (negative)
-    const liquidationPercentage =
-      ((collateralPrice - debtValue) / liquidationPrice) * 100;
-
-    return liquidationPercentage.toFixed(1);
-  } else {
-    // Calculate the liquidation percentage (positive)
-    const liquidationPercentage =
-      (debtValue / (collateralPrice - liquidationPrice)) * 100;
-
-    return liquidationPercentage.toFixed(1);
-  }
-}
-
 export const getLiquidationPrice = (
   totalCollateral,
   totalDebt,
@@ -144,18 +123,16 @@ export const getActivityName = (debt, collateral) => {
 };
 
 export const getActivityBool = (debt, collateral) => {
-  // if (debt != 0 && collateral != 0) {
-  //   return 'switch';
-  // } else if (debt != 0) {
-  //   return Math.sign(debt) == 1 ? 'increase' : 'decrease';
-  // } else if (collateral != 0) {
-  //   return Math.sign(collateral) == 1 ? 'increase' : 'decrease';
-  // } else {
-  //   return 'none';
-  // }
-
-  if (debt != 0) {
-    return Math.sign(debt) == 1 ? 'decrease' : 'increase';
+  if (Math.sign(debt) == -1 && collateral == 0) {
+    return 'increase';
+  } else if (Math.sign(debt) == 1 && collateral == 0) {
+    return 'decrease';
+  } else if (Math.sign(debt) == -1 && Math.sign(collateral) == -1) {
+    return 'none';
+  } else if (Math.sign(collateral) == -1 && debt == 0) {
+    return 'decrease';
+  } else if (Math.sign(collateral) == 1 && debt == 0) {
+    return 'increase';
   } else {
     return 'none';
   }
