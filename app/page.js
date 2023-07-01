@@ -7,42 +7,32 @@ import {
   Skeleton,
   Link as ChakraLink
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useContext } from 'react';
 import { SafesTable } from './components/SafesTable';
 import { SYSTEMSTATE_QUERY } from './utils/queries';
 import { useQuery } from '@apollo/client';
 import { formatNumber, getCollateralRatio } from './utils/helpers';
+import { AppContext } from './context/AppContext';
 
 import { FaExternalLinkSquareAlt } from 'react-icons/fa';
 
 export default function Home() {
   const { loading, data } = useQuery(SYSTEMSTATE_QUERY);
-
-  const [raiDebt, setRaiDebt] = useState('');
-  const [collateral, setCollateral] = useState('');
-  const [raiPrice, setRaiPrice] = useState('');
-  const [collateralPrice, setCollateralPrice] = useState('');
-  const [liquidationPrice, setLiquidationPrice] = useState('');
-  const [liquidationCRatio, setLiquidationCRatio] = useState('');
+  const context = useContext(AppContext);
 
   useEffect(() => {
     if (data) {
-      const globalDebt = data.systemStates[0].globalDebt;
-
-      const globalCollateral =
-        data.collateralPrices[0].collateral.totalCollateral;
-
-      setRaiPrice(data.dailyStats[0].marketPriceUsd);
-      setCollateralPrice(
-        data.collateralPrices[0].collateral.currentPrice.value
-      );
-      setRaiDebt(globalDebt);
-      setCollateral(globalCollateral);
-      setLiquidationPrice(
+      context.setStandardStats(
+        data.systemStates[0].safeCount,
+        data.systemStates[0].totalActiveSafeCount,
+        data.systemStates[0].globalDebt,
+        data.systemStates[0].currentRedemptionPrice.value,
+        data.redemptionRates[0].annualizedRate,
+        data.collateralPrices[0].collateral.totalCollateral,
+        data.collateralPrices[0].collateral.currentPrice.value,
+        data.dailyStats[0].marketPriceUsd,
+        data.safes[0].collateralType.currentPrice.collateral.liquidationCRatio,
         data.safes[0].collateralType.currentPrice.liquidationPrice
-      );
-      setLiquidationCRatio(
-        data.safes[0].collateralType.currentPrice.collateral.liquidationCRatio
       );
     }
   }, [data]);
@@ -85,14 +75,11 @@ export default function Home() {
                 {new Intl.NumberFormat('en-US', {
                   style: 'decimal',
                   minimumFractionDigits: 0
-                }).format(Number(data.systemStates[0].safeCount))}
+                }).format(Number(context.safeCount))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Total Safes
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Total
-              </Text> */}
             </Flex>
             <Flex direction='column' alignItems='left' justifyContent='center'>
               <Text
@@ -102,14 +89,11 @@ export default function Home() {
                 backgroundClip='text'
                 fontWeight='extrabold'
               >
-                {data.systemStates[0].totalActiveSafeCount}
+                {context.activeSafesCount}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Active Safes
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Total
-              </Text> */}
             </Flex>
             <Flex
               direction='column'
@@ -129,16 +113,12 @@ export default function Home() {
                   style: 'decimal',
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
-                }).format(Number(formatNumber(collateralPrice)))}{' '}
+                }).format(Number(formatNumber(context.collateralPrice)))}{' '}
                 USD
-                {/* {Number(formatNumber(collateralPrice)).toLocaleString('en-US')} */}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 ETH Price
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Price
-              </Text> */}
             </Flex>
             <Flex
               direction='column'
@@ -157,14 +137,11 @@ export default function Home() {
                   style: 'decimal',
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
-                }).format(Number(formatNumber(collateral)))}
+                }).format(Number(formatNumber(context.globalCollateral)))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 ETH Collateral
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Collateral
-              </Text> */}
             </Flex>
             <Flex
               direction='column'
@@ -182,14 +159,11 @@ export default function Home() {
                 {new Intl.NumberFormat('en-US', {
                   style: 'decimal',
                   minimumFractionDigits: 0
-                }).format(Number(formatNumber(raiDebt, 0, true)))}
+                }).format(Number(formatNumber(context.globalDebt, 0, true)))}
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Minted RAI Debt
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Debt
-              </Text> */}
             </Flex>
 
             <Flex
@@ -206,19 +180,16 @@ export default function Home() {
                 fontWeight='extrabold'
               >
                 {getCollateralRatio(
-                  collateral,
-                  raiDebt,
-                  liquidationPrice,
-                  liquidationCRatio
+                  context.globalCollateral,
+                  context.globalDebt,
+                  context.liquidationPrice,
+                  context.liquidationCRatio
                 )}
                 %
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 Collateral Ratio
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                Collateral Ratio
-              </Text> */}
             </Flex>
 
             <Flex
@@ -236,18 +207,13 @@ export default function Home() {
               >
                 ${' '}
                 {Number(
-                  formatNumber(
-                    data.systemStates[0].currentRedemptionPrice.value
-                  )
+                  formatNumber(context.raiRedemptionPrice)
                 ).toLocaleString('en-US')}{' '}
                 USD
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 RAI Redemption Price
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                RAI
-              </Text> */}
             </Flex>
             <Flex
               direction='column'
@@ -265,17 +231,12 @@ export default function Home() {
                 {new Intl.NumberFormat('en-US', {
                   style: 'decimal',
                   minimumFractionDigits: 3
-                }).format(
-                  Number((data.redemptionRates[0].annualizedRate - 1) * 100)
-                )}{' '}
+                }).format(Number((context.raiRedemptionRate - 1) * 100))}{' '}
                 %
               </Text>
               <Text fontSize={{ lg: '14px', sm: '12px' }} fontWeight='bold'>
                 RAI Redemption Rate APY
               </Text>
-              {/* <Text fontSize={{ lg: '14px', sm: '12px' }} opacity='0.7'>
-                RAI
-              </Text> */}
             </Flex>
             <Flex
               direction='row'
@@ -304,7 +265,7 @@ export default function Home() {
         )}
       </Flex>
 
-      <SafesTable raiPrice={raiPrice} collateralPrice={collateralPrice} />
+      <SafesTable />
     </Flex>
   );
 }

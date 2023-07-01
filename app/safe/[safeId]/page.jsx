@@ -1,6 +1,6 @@
 'use client';
 
-import { SafeTable } from '@/app/components/SafeTable';
+import { ActivityTable } from '@/app/components/ActivityTable';
 import {
   Flex,
   Text,
@@ -8,7 +8,6 @@ import {
   Skeleton,
   VStack,
   Button,
-  Tag,
   HStack,
   Link as ChakraLink
 } from '@chakra-ui/react';
@@ -20,17 +19,16 @@ import {
   getAccountString,
   formatNumber,
   getLTVRatio,
-  getCollateralRatio,
   getLiquidationPrice
 } from '@/app/utils/helpers';
 import { useState, useEffect } from 'react';
 
 export default function SafePage({ params }) {
-  const { data: safeData, error } = useQuery(SAFE_QUERY, {
+  const { data: safeData } = useQuery(SAFE_QUERY, {
     variables: { id: params.safeId }
   });
 
-  const [raiPrice, setRaiPrice] = useState(1);
+  const [raiRedemptionPrice, setRaiRedemptionPrice] = useState(1);
   const [safe, setSafe] = useState(null);
 
   const router = useRouter();
@@ -38,7 +36,7 @@ export default function SafePage({ params }) {
   useEffect(() => {
     if (safeData) {
       setSafe(safeData.safes[0]);
-      setRaiPrice(safeData.dailyStats[0].redemptionPrice.value);
+      setRaiRedemptionPrice(safeData.dailyStats[0].redemptionPrice.value);
     }
   }, [safeData]);
 
@@ -193,7 +191,7 @@ export default function SafePage({ params }) {
                     <Text color='white' fontSize={{ lg: '18px', sm: '12px' }}>
                       ${' '}
                       {Number(
-                        formatNumber(raiPrice * safe.debt)
+                        formatNumber(raiRedemptionPrice * safe.debt)
                       ).toLocaleString('en-US')}
                     </Text>
                   </HStack>
@@ -215,7 +213,7 @@ export default function SafePage({ params }) {
                     safe.collateral,
                     safe.collateralType.currentPrice.value,
                     safe.debt,
-                    raiPrice
+                    raiRedemptionPrice
                   )}
                   %
                 </Text>
@@ -242,7 +240,7 @@ export default function SafePage({ params }) {
                         safe.collateralType.currentPrice.value) /
                         (safe.debt *
                           safe.collateralType.accumulatedRate *
-                          safeData.systemStates[0].currentRedemptionPrice.value)
+                          raiRedemptionPrice)
                     ) * 100
                   )}{' '}
                   %
@@ -275,7 +273,7 @@ export default function SafePage({ params }) {
                       safe.debt * safe.collateralType.accumulatedRate,
                       safe.collateralType.currentPrice.collateral
                         .liquidationCRatio,
-                      safeData.systemStates[0].currentRedemptionPrice.value
+                      raiRedemptionPrice
                     )
                   ).toLocaleString('en-US')}
                 </Text>
@@ -286,10 +284,10 @@ export default function SafePage({ params }) {
       </Flex>
 
       {safe && (
-        <SafeTable
+        <ActivityTable
           safeId={safe.id}
           collateralPrice={safe.collateralType.currentPrice.value}
-          debtPrice={raiPrice}
+          debtPrice={raiRedemptionPrice}
         />
       )}
     </Flex>

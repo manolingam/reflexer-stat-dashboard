@@ -4,11 +4,50 @@ export const AppContext = createContext();
 
 class AppContextProvider extends Component {
   state = {
+    // safes data
     zeroSafes: [],
     nonZeroSafes: [],
-    systemStates: '',
+
     zeroSafesStored: false,
-    nonZeroSafesStored: false
+    nonZeroSafesStored: false,
+
+    // standard stats
+    safeCount: '',
+    activeSafesCount: '',
+    globalDebt: '',
+    raiRedemptionPrice: '',
+    raiRedemptionRate: '',
+    globalCollateral: '',
+    collateralPrice: '',
+    raiMarketPrice: '',
+    liquidationCRatio: '',
+    liquidationPrice: ''
+  };
+
+  setStandardStats = (
+    safeCount,
+    activeSafesCount,
+    globalDebt,
+    raiRedemptionPrice,
+    raiRedemptionRate,
+    globalCollateral,
+    collateralPrice,
+    raiMarketPrice,
+    liquidationCRatio,
+    liquidationPrice
+  ) => {
+    this.setState({
+      safeCount,
+      activeSafesCount,
+      globalDebt,
+      raiRedemptionPrice,
+      raiRedemptionRate,
+      globalCollateral,
+      collateralPrice,
+      raiMarketPrice,
+      liquidationCRatio,
+      liquidationPrice
+    });
   };
 
   setZeroSafes = (_safes) => {
@@ -46,9 +85,9 @@ class AppContextProvider extends Component {
       <AppContext.Provider
         value={{
           ...this.state,
+          setStandardStats: this.setStandardStats,
           setZeroSafes: this.setZeroSafes,
           setNonZeroSafes: this.setNonZeroSafes,
-          setSystemStates: this.setSystemStates,
           setZeroSafesStored: this.setZeroSafesStored,
           setNonZeroSafesStored: this.setNonZeroSafesStored
         }}

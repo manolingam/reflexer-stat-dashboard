@@ -47,25 +47,28 @@ import { AppContext } from '../context/AppContext';
 
 const RECORDS_PER_PAGE = 50;
 
-export const SafesTable = ({ raiPrice, collateralPrice }) => {
+export const SafesTable = () => {
   const router = useRouter();
   const context = useContext(AppContext);
-  const [currentRecords, setCurrentRecords] = useState([]);
 
+  // table controllers
+  const [currentSafes, setCurrentSafes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [aPage, setAPage] = useState(0);
+  const [graphqlPage, setGraphQlPage] = useState(0);
 
+  // state indicators
   const [progressPercent, setProgressPercent] = useState(0);
+  const [loading, setLoading] = useState(true);
 
+  // state controllers
   const [notZeroSafes, setNotZeroSafes] = useState(true);
   const [sortBy, setSortBy] = useState({
     type: 'collateral',
     direction: 'desc'
   });
 
-  const [loading, setLoading] = useState(true);
-
+  // data controller
   const { fetchMore } = useQuery(
     notZeroSafes ? ALLSAFES_QUERY_NOT_ZERO : ALLSAFES_QUERY_WITH_ZERO,
     {
@@ -147,9 +150,7 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
               ...fetchMoreResult.safes
             ]);
             setProgressPercent(
-              ((aPage * 100) /
-                fetchMoreResult.systemStates[0].totalActiveSafeCount) *
-                100
+              ((graphqlPage * 100) / context.activeSafesCount) * 100
             );
           } else if (!notZeroSafes && !context.zeroSafesStored) {
             context.setZeroSafes([
@@ -157,19 +158,19 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
               ...fetchMoreResult.safes
             ]);
             setProgressPercent(
-              ((aPage * 100) /
+              ((graphqlPage * 100) /
                 fetchMoreResult.safes[0].collateralType.safeCount) *
                 100
             );
           }
-          setAPage(aPage + 1);
+          setGraphQlPage(graphqlPage + 1);
         } else {
           if (!notZeroSafes) {
             context.setZeroSafesStored(true);
           } else {
             context.setNonZeroSafesStored(true);
           }
-          context.setSystemStates(fetchMoreResult.systemStates);
+
           performSorts();
         }
       }
@@ -180,50 +181,14 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
     _pageNumber ? setCurrentPage(_pageNumber) : null;
     const indexOfLastRecord = currentPage * RECORDS_PER_PAGE;
     const indexOfFirstRecord = indexOfLastRecord - RECORDS_PER_PAGE;
-    const currentRecords = _safes.slice(indexOfFirstRecord, indexOfLastRecord);
-    setCurrentRecords(currentRecords);
+    const currentSafes = _safes.slice(indexOfFirstRecord, indexOfLastRecord);
+    setCurrentSafes(currentSafes);
   };
 
   const cropRecords = (_safes, _page) => {
     setTotalPages(Math.ceil(_safes.length / RECORDS_PER_PAGE));
     paginate(_safes, _page);
   };
-
-  useEffect(() => {
-    if (!context.zeroSafesStored || !context.nonZeroSafesStored) {
-      loadMore(100, aPage * 100);
-    }
-  }, [aPage]);
-
-  useEffect(() => {
-    setLoading(true);
-    setCurrentRecords([]);
-    performSorts();
-    setCurrentPage(1);
-  }, [sortBy]);
-
-  useEffect(() => {
-    setLoading(true);
-    setCurrentRecords([]);
-    if (!notZeroSafes && context.zeroSafesStored) {
-      performSorts();
-    } else if (notZeroSafes && context.nonZeroSafesStored) {
-      performSorts();
-    } else {
-      setAPage(0);
-    }
-  }, [notZeroSafes]);
-
-  useEffect(() => {
-    if (sortBy.type === 'CR') {
-      performSorts();
-    } else {
-      cropRecords(
-        notZeroSafes ? context.nonZeroSafes : context.zeroSafes,
-        currentPage
-      );
-    }
-  }, [currentPage]);
 
   const updateSortBy = (type) => {
     setSortBy((prevState) => ({
@@ -237,6 +202,42 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
     setNotZeroSafes((prevState) => !prevState);
     updateSortBy('collateral');
   };
+
+  useEffect(() => {
+    if (!context.zeroSafesStored || !context.nonZeroSafesStored) {
+      loadMore(100, graphqlPage * 100);
+    }
+  }, [graphqlPage]);
+
+  useEffect(() => {
+    setLoading(true);
+    setCurrentSafes([]);
+    performSorts();
+    setCurrentPage(1);
+  }, [sortBy]);
+
+  useEffect(() => {
+    setLoading(true);
+    setCurrentSafes([]);
+    if (!notZeroSafes && context.zeroSafesStored) {
+      performSorts();
+    } else if (notZeroSafes && context.nonZeroSafesStored) {
+      performSorts();
+    } else {
+      setGraphQlPage(0);
+    }
+  }, [notZeroSafes]);
+
+  useEffect(() => {
+    if (sortBy.type === 'CR') {
+      performSorts();
+    } else {
+      cropRecords(
+        notZeroSafes ? context.nonZeroSafes : context.zeroSafes,
+        currentPage
+      );
+    }
+  }, [currentPage]);
 
   return (
     <Flex direction='column'>
@@ -351,26 +352,18 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                 </Th>
                 <Th textAlign='left'>Liquidation</Th>
                 <Th textAlign='center'>LTV</Th>
-                {/* <Th textAlign='center'>
-                  <Tooltip label='Saviour contract helping to prevent liquidation'>
-                    <HStack>
-                      <FaInfoCircle />
-                      <Text>Saviour</Text>
-                    </HStack>
-                  </Tooltip>
-                </Th> */}
               </Tr>
             </Thead>
             <Tbody>
-              {currentRecords.length > 0 &&
-                currentRecords.map((records, index) => {
+              {currentSafes.length > 0 &&
+                currentSafes.map((safe, index) => {
                   return (
                     <Tr key={index} fontSize='14px'>
                       <Td>
                         <HStack>
                           <Tooltip
                             label={
-                              records.saviour && records.saviour.allowed
+                              safe.saviour && safe.saviour.allowed
                                 ? 'Saviour Protection Enabled'
                                 : 'Saviour Protection Disabled'
                             }
@@ -379,12 +372,12 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                               mr='10px'
                               textAlign='center'
                               color={
-                                records.saviour && records.saviour.allowed
+                                safe.saviour && safe.saviour.allowed
                                   ? 'green'
                                   : 'red'
                               }
                             >
-                              {records.saviour && records.saviour.allowed ? (
+                              {safe.saviour && safe.saviour.allowed ? (
                                 <FaCheckCircle />
                               ) : (
                                 <RxCrossCircled />
@@ -401,28 +394,26 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                             fontWeight='bold'
                             _hover={{ opacity: 0.7 }}
                             cursor='pointer'
-                            onClick={() =>
-                              router.push(`/safe/${records.safeId}`)
-                            }
+                            onClick={() => router.push(`/safe/${safe.safeId}`)}
                           >
                             <FaExternalLinkSquareAlt />
-                            <Text>{records.safeId}</Text>
+                            <Text>{safe.safeId}</Text>
                           </HStack>
                         </HStack>
                       </Td>
                       <Td>
                         <Tooltip
-                          label={records.owner.address}
+                          label={safe.owner.address}
                           placement='right'
                           fontSize='14px'
                         >
                           <HStack color='#0784c3'>
                             <FaInfoCircle />
                             <ChakraLink
-                              href={`https://etherscan.io/address/${records.owner.address}`}
+                              href={`https://etherscan.io/address/${safe.owner.address}`}
                               isExternal
                             >
-                              {getAccountString(records.owner.address)}
+                              {getAccountString(safe.owner.address)}
                             </ChakraLink>
                           </HStack>
                         </Tooltip>
@@ -435,13 +426,15 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           }).format(
-                            Number(formatNumber(records.debt))
+                            Number(formatNumber(safe.debt))
                           )} RAI / $ ${new Intl.NumberFormat('en-US', {
                             style: 'decimal',
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           }).format(
-                            Number(formatNumber(records.debt * raiPrice))
+                            Number(
+                              formatNumber(safe.debt * context.raiMarketPrice)
+                            )
                           )}`}
                           placement='right'
                           fontSize='14px'
@@ -453,12 +446,10 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                                 style: 'decimal',
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
-                              }).format(
-                                Number(formatNumber(records.debt))
-                              )}{' '}
+                              }).format(Number(formatNumber(safe.debt)))}{' '}
                               RAI / ~ $
                               {formatNumberAlphabetical(
-                                records.debt * raiPrice
+                                safe.debt * context.raiMarketPrice
                               )}
                             </Text>
                           </HStack>
@@ -472,14 +463,16 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           }).format(
-                            Number(formatNumber(records.collateral))
+                            Number(formatNumber(safe.collateral))
                           )} ETH / $ ${new Intl.NumberFormat('en-US', {
                             style: 'decimal',
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2
                           }).format(
                             Number(
-                              formatNumber(records.collateral * collateralPrice)
+                              formatNumber(
+                                safe.collateral * context.collateralPrice
+                              )
                             )
                           )}`}
                           placement='right'
@@ -492,12 +485,10 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                                 style: 'decimal',
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
-                              }).format(
-                                Number(formatNumber(records.collateral))
-                              )}
+                              }).format(Number(formatNumber(safe.collateral)))}
                               ETH / ~ $
                               {formatNumberAlphabetical(
-                                records.collateral * collateralPrice
+                                safe.collateral * context.collateralPrice
                               )}
                             </Text>
                           </HStack>
@@ -506,10 +497,10 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
 
                       <Td textAlign='center'>
                         {getCollateralRatio(
-                          records.collateral,
-                          records.debt,
-                          records.collateralType.currentPrice.liquidationPrice,
-                          records.collateralType.currentPrice.collateral
+                          safe.collateral,
+                          safe.debt,
+                          safe.collateralType.currentPrice.liquidationPrice,
+                          safe.collateralType.currentPrice.collateral
                             .liquidationCRatio
                         )}{' '}
                         %
@@ -518,42 +509,23 @@ export const SafesTable = ({ raiPrice, collateralPrice }) => {
                         $
                         {Number(
                           getLiquidationPrice(
-                            records.collateral,
-                            records.debt *
-                              records.collateralType.accumulatedRate,
-                            records.collateralType.currentPrice.collateral
+                            safe.collateral,
+                            safe.debt * safe.collateralType.accumulatedRate,
+                            safe.collateralType.currentPrice.collateral
                               .liquidationCRatio,
-                            context.systemStates[0].currentRedemptionPrice.value
+                            context.raiRedemptionPrice
                           )
                         ).toLocaleString('en-US')}
                       </Td>
                       <Td textAlign='center'>
                         {getLTVRatio(
-                          records.collateral,
-                          collateralPrice,
-                          records.debt,
-                          raiPrice
+                          safe.collateral,
+                          context.collateralPrice,
+                          safe.debt,
+                          context.raiMarketPrice
                         )}{' '}
                         %
                       </Td>
-                      {/* <Td textAlign='center'>
-                        <Flex alignItems='center' justifyContent='center'>
-                          <Text
-                            textAlign='center'
-                            color={
-                              records.saviour && records.saviour.allowed
-                                ? 'green'
-                                : 'red'
-                            }
-                          >
-                            {records.saviour && records.saviour.allowed ? (
-                              <FaCheckCircle />
-                            ) : (
-                              <RxCrossCircled />
-                            )}
-                          </Text>
-                        </Flex>
-                      </Td> */}
                     </Tr>
                   );
                 })}

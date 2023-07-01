@@ -7,7 +7,6 @@ export const SYSTEMSTATE_QUERY = gql`
       globalDebt
       totalActiveSafeCount
       currentRedemptionPrice {
-        redemptionRate
         value
       }
     }
@@ -37,17 +36,6 @@ export const SYSTEMSTATE_QUERY = gql`
           }
           liquidationPrice
         }
-      }
-    }
-  }
-`;
-
-export const RAIPRICE_QUERY = gql`
-  query GetRaiPrice {
-    dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
-      marketPriceUsd
-      redemptionPrice {
-        value
       }
     }
   }
@@ -88,12 +76,6 @@ export const ALLSAFES_QUERY_WITH_ZERO = gql`
         allowed
       }
     }
-    systemStates {
-      totalActiveSafeCount
-      currentRedemptionPrice {
-        value
-      }
-    }
   }
 `;
 
@@ -127,17 +109,10 @@ export const ALLSAFES_QUERY_NOT_ZERO = gql`
             liquidationCRatio
           }
         }
-
         safeCount
       }
       saviour {
         allowed
-      }
-    }
-    systemStates {
-      totalActiveSafeCount
-      currentRedemptionPrice {
-        value
       }
     }
   }
@@ -165,13 +140,7 @@ export const SAFE_QUERY = gql`
       }
     }
     dailyStats(first: 1, orderBy: timestamp, orderDirection: desc) {
-      marketPriceUsd
       redemptionPrice {
-        value
-      }
-    }
-    systemStates {
-      currentRedemptionPrice {
         value
       }
     }

@@ -34,7 +34,7 @@ import {
   FaExternalLinkSquareAlt
 } from 'react-icons/fa';
 
-export const SafeTable = ({ safeId, collateralPrice, debtPrice }) => {
+export const ActivityTable = ({ safeId, collateralPrice, debtPrice }) => {
   const [activity, setActivity] = useState([]);
 
   const { data, loading } = useQuery(SAFE_ACTIVITY_QUERY, {

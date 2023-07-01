@@ -6,8 +6,8 @@ import { Providers } from './providers';
 import { client } from './utils/graph';
 import { ApolloProvider } from '@apollo/client';
 import { Flex, Box } from '@chakra-ui/react';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
+import { Header } from './shared/Header';
+import { Footer } from './shared/Footer';
 
 import AppContextProvider from './context/AppContext';
 
